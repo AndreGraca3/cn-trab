@@ -92,6 +92,12 @@ public class Service extends ServiceGrpc.ServiceImplBase {
         };
     }
 
+    @Override
+    public StreamObserver<IntNumber> findPrimes(IntervalNumbers) {
+
+    }
+
+
     private void simulateExecutionTime() {
         try {
             // simulate processing time between 200ms and 3s
