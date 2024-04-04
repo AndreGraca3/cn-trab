@@ -39,6 +39,11 @@ public final class ServiceContract {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_grpcservice_AddResult_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_grpcservice_IntervalNumbers_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_grpcservice_IntervalNumbers_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -53,14 +58,17 @@ public final class ServiceContract {
       "\tIntNumber\022\021\n\tintnumber\030\001 \001(\005\"6\n\013AddOper" +
       "ands\022\r\n\005addID\030\001 \001(\t\022\013\n\003op1\030\002 \001(\005\022\013\n\003op2\030" +
       "\003 \001(\005\"*\n\tAddResult\022\r\n\005addID\030\001 \001(\t\022\016\n\006res" +
-      "ult\030\002 \001(\0052\224\002\n\007Service\022;\n\007isAlive\022\026.grpcs" +
-      "ervice.ProtoVoid\032\030.grpcservice.TextMessa" +
-      "ge\022B\n\016getEvenNumbers\022\026.grpcservice.IntNu" +
-      "mber\032\026.grpcservice.IntNumber0\001\022C\n\017addSeq" +
-      "OfNumbers\022\026.grpcservice.IntNumber\032\026.grpc" +
-      "service.IntNumber(\001\022C\n\013multipleAdd\022\030.grp" +
-      "cservice.AddOperands\032\026.grpcservice.AddRe" +
-      "sult(\0010\001B\020\n\014servicestubsP\001b\006proto3"
+      "ult\030\002 \001(\005\"-\n\017IntervalNumbers\022\r\n\005start\030\001 " +
+      "\001(\005\022\013\n\003end\030\002 \001(\0052\332\002\n\007Service\022;\n\007isAlive\022" +
+      "\026.grpcservice.ProtoVoid\032\030.grpcservice.Te" +
+      "xtMessage\022B\n\016getEvenNumbers\022\026.grpcservic" +
+      "e.IntNumber\032\026.grpcservice.IntNumber0\001\022C\n" +
+      "\017addSeqOfNumbers\022\026.grpcservice.IntNumber" +
+      "\032\026.grpcservice.IntNumber(\001\022C\n\013multipleAd" +
+      "d\022\030.grpcservice.AddOperands\032\026.grpcservic" +
+      "e.AddResult(\0010\001\022D\n\nfindPrimes\022\034.grpcserv" +
+      "ice.IntervalNumbers\032\026.grpcservice.IntNum" +
+      "ber0\001B\020\n\014servicestubsP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -96,6 +104,12 @@ public final class ServiceContract {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_grpcservice_AddResult_descriptor,
         new java.lang.String[] { "AddID", "Result", });
+    internal_static_grpcservice_IntervalNumbers_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_grpcservice_IntervalNumbers_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_grpcservice_IntervalNumbers_descriptor,
+        new java.lang.String[] { "Start", "End", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

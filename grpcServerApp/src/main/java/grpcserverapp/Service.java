@@ -5,9 +5,9 @@ import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
 import servicestubs.*;
 
-
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.google.common.math.IntMath.isPrime;
 
 public class Service extends ServiceGrpc.ServiceImplBase {
 
@@ -46,7 +46,7 @@ public class Service extends ServiceGrpc.ServiceImplBase {
     @Override
     public StreamObserver<IntNumber> addSeqOfNumbers(StreamObserver<IntNumber> responseObserver) {
         System.out.println("addSeqOfNumbers called! returned a stream to receive requests");
-        return new StreamObserver<IntNumber>() {
+        return new StreamObserver<>() {
             int soma = 0; // To accumulate values
 
             @Override
@@ -70,7 +70,7 @@ public class Service extends ServiceGrpc.ServiceImplBase {
     @Override
     public StreamObserver<AddOperands> multipleAdd(StreamObserver<AddResult> responseObserver) {
         System.out.println("multipleAdd called! returned a stream to receive requests");
-        return new StreamObserver<AddOperands>() {
+        return new StreamObserver<>() {
             @Override
             public void onNext(AddOperands addOperands) {
                 System.out.println("Operands of ID=" + addOperands.getAddID());
@@ -82,14 +82,30 @@ public class Service extends ServiceGrpc.ServiceImplBase {
                 System.out.println("  Result of ID=" + addOperands.getAddID() + " " + result.getResult());
                 responseObserver.onNext(result);
             }
+
             @Override
-            public void onError(Throwable throwable) {      }
+            public void onError(Throwable throwable) {
+            }
+
             @Override
             public void onCompleted() {
                 System.out.println("client completed requests -> completed responses");
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void findPrimes(IntervalNumbers request, StreamObserver<IntNumber> responseObserver) {
+        System.out.println("findPrimes called!");
+        if (request.getEnd() < request.getStart()) {
+            responseObserver.onError(new StatusException(Status.INVALID_ARGUMENT.withDescription("Invalid Interval!")));
+        }
+
+        for (int n = request.getStart(); n <= request.getEnd(); n++) {
+            if (isPrime(n)) responseObserver.onNext(IntNumber.newBuilder().setIntnumber(n).build());
+        }
+        responseObserver.onCompleted();
     }
 
     private void simulateExecutionTime() {

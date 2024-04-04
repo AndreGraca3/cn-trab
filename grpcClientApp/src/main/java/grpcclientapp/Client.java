@@ -6,7 +6,7 @@ import io.grpc.stub.StreamObserver;
 import servicestubs.*;
 
 import java.util.*;
-import java.util.concurrent.Semaphore;
+
 
 public class Client {
     // generic ClientApp for Calling a grpc Service
@@ -19,7 +19,8 @@ public class Client {
     public static void main(String[] args) {
         try {
             if (args.length == 2) {
-                svcIP = args[0]; svcPort = Integer.parseInt(args[1]);
+                svcIP = args[0];
+                svcPort = Integer.parseInt(args[1]);
             }
             System.out.println("connect to " + svcIP + ":" + svcPort);
             channel = ManagedChannelBuilder.forAddress(svcIP, svcPort)
@@ -37,16 +38,25 @@ public class Client {
                     int option = Menu();
                     switch (option) {
                         case 1:
-                            isAliveCall();  break;
+                            isAliveCall();
+                            break;
                         case 2:
-                            getNevenNumbersSynchronousCall(); break;
+                            getNevenNumbersSynchronousCall();
+                            break;
                         case 3:
-                            getNevenNumbersAsynchronousCall(); break;
+                            getNevenNumbersAsynchronousCall();
+                            break;
                         case 4:
-                            addSequenceOfNumbersCall(); break;
+                            addSequenceOfNumbersCall();
+                            break;
                         case 5:
-                            bidirectionalStreamingCall(); break;
-                        case 99:  System.exit(0);
+                            bidirectionalStreamingCall();
+                            break;
+                        case 6:
+                            findPrimesAsynchronousCall();
+                            break;
+                        case 99:
+                            System.exit(0);
                     }
                 } catch (Exception ex) {
                     System.out.println("Execution call Error  !");
@@ -70,13 +80,13 @@ public class Client {
         //Synchronous blocking call
         try {
             int N = Integer.parseInt(read("How many even numbers?", new Scanner(System.in)));
-            IntNumber intNumber=IntNumber.newBuilder().setIntnumber(N).build();
+            IntNumber intNumber = IntNumber.newBuilder().setIntnumber(N).build();
             Iterator<IntNumber> iterator = blockingStub.getEvenNumbers(intNumber);
             while (iterator.hasNext()) {
                 System.out.println("more one even number: " + iterator.next().getIntnumber());
             }
-        } catch(Exception ex) {
-            System.out.println("Synchronous call error: "+ex.getMessage());
+        } catch (Exception ex) {
+            System.out.println("Synchronous call error: " + ex.getMessage());
         }
     }
 
@@ -112,7 +122,7 @@ public class Client {
         });
         for (int i = 1; i <= N; i++) { // send N numbers
             streamNumbers.onNext(IntNumber.newBuilder().setIntnumber(i).build());
-            System.out.println("sent number "+i);
+            System.out.println("sent number " + i);
         }
         streamNumbers.onCompleted();
         // Note that client has sent all requests, but needs synchronization
@@ -126,11 +136,13 @@ public class Client {
             public void onNext(AddResult addResult) {
                 System.out.println("Add Result ID(" + addResult.getAddID() + ")=" + addResult.getResult());
             }
+
             @Override
             public void onError(Throwable throwable) {
 
-                System.out.println("onError:"+throwable.getMessage());
+                System.out.println("onError:" + throwable.getMessage());
             }
+
             @Override
             public void onCompleted() {
                 System.out.println("Add operations requests completed");
@@ -151,6 +163,25 @@ public class Client {
         // to terminate after get all results
     }
 
+    static void findPrimesAsynchronousCall() throws InterruptedException {
+        int N = Integer.parseInt(read("How many intervals?", new Scanner(System.in)));
+        ArrayList<IntervalNumbers> intervals = new ArrayList<>();
+        PrimesNumberStream primeStream = new PrimesNumberStream();
+        for (int i = 0; i < N; i++) {
+            try {
+                int start = Integer.parseInt(read("What's the start of the interval?", new Scanner(System.in)));
+                int end = Integer.parseInt(read("What's the end of the interval?", new Scanner(System.in)));
+                intervals.add(IntervalNumbers.newBuilder().setStart(start).setEnd(end).build());
+            } catch (Exception e) {
+                System.out.println("Invalid format for an number interval!");
+            }
+        }
+        intervals.forEach(it -> noBlockStub.findPrimes(it, primeStream));
+        while (!primeStream.isCompleted()) {
+            System.out.println("Continue working until receive all even numbers");
+            Thread.sleep(1000); // Simulate processing time (1 seg)
+        }
+    }
 
     private static int Menu() {
         int op;
@@ -163,11 +194,12 @@ public class Client {
             System.out.println(" 3 - Case server stream: get N even numbers: Asynchronous call");
             System.out.println(" 4 - Case client stream: add sequence of numbers between 1 and N");
             System.out.println(" 5 - Case bidirectional streaming (client and server): multiple add operations)");
+            System.out.println(" 6 - Case server stream: get prime number from intervals of numbers");
             System.out.println("99 - Exit");
             System.out.println();
             System.out.println("Choose an Option?");
             op = scan.nextInt();
-        } while (!((op >= 1 && op <= 5) || op == 99));
+        } while (!((op >= 1 && op <= 6) || op == 99));
         return op;
     }
 

@@ -10,7 +10,9 @@ servicestubs\AddResult$Builder.class
 servicestubs\IntNumber$1.class
 servicestubs\ServiceGrpc$AsyncService.class
 servicestubs\TextMessage.class
+servicestubs\IntervalNumbersOrBuilder.class
 servicestubs\ServiceContract.class
+servicestubs\IntervalNumbers$Builder.class
 servicestubs\ServiceGrpc$ServiceStub.class
 servicestubs\ServiceGrpc$1.class
 servicestubs\IntNumber$Builder.class
@@ -25,6 +27,8 @@ servicestubs\ProtoVoidOrBuilder.class
 servicestubs\TextMessage$Builder.class
 servicestubs\ProtoVoid$Builder.class
 servicestubs\ServiceGrpc$2.class
+servicestubs\IntervalNumbers.class
+servicestubs\IntervalNumbers$1.class
 servicestubs\ServiceGrpc$3.class
 servicestubs\ServiceGrpc$ServiceFutureStub.class
 servicestubs\ServiceGrpc$MethodHandlers.class

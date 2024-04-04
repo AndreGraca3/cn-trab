@@ -1,5 +1,7 @@
 package servicestubs;
 
+import io.grpc.stub.StreamObserver;
+
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
@@ -142,6 +144,37 @@ public final class ServiceGrpc {
     return getMultipleAddMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<servicestubs.IntervalNumbers,
+      servicestubs.IntNumber> getFindPrimesMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "findPrimes",
+      requestType = servicestubs.IntervalNumbers.class,
+      responseType = servicestubs.IntNumber.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<servicestubs.IntervalNumbers,
+      servicestubs.IntNumber> getFindPrimesMethod() {
+    io.grpc.MethodDescriptor<servicestubs.IntervalNumbers, servicestubs.IntNumber> getFindPrimesMethod;
+    if ((getFindPrimesMethod = ServiceGrpc.getFindPrimesMethod) == null) {
+      synchronized (ServiceGrpc.class) {
+        if ((getFindPrimesMethod = ServiceGrpc.getFindPrimesMethod) == null) {
+          ServiceGrpc.getFindPrimesMethod = getFindPrimesMethod =
+              io.grpc.MethodDescriptor.<servicestubs.IntervalNumbers, servicestubs.IntNumber>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "findPrimes"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  servicestubs.IntervalNumbers.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  servicestubs.IntNumber.getDefaultInstance()))
+              .setSchemaDescriptor(new ServiceMethodDescriptorSupplier("findPrimes"))
+              .build();
+        }
+      }
+    }
+    return getFindPrimesMethod;
+  }
+
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -232,6 +265,16 @@ public final class ServiceGrpc {
         io.grpc.stub.StreamObserver<servicestubs.AddResult> responseObserver) {
       return io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall(getMultipleAddMethod(), responseObserver);
     }
+
+    /**
+     * <pre>
+     * find primes in a number interval
+     * </pre>
+     */
+    default void findPrimes(servicestubs.IntervalNumbers request,
+        io.grpc.stub.StreamObserver<servicestubs.IntNumber> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getFindPrimesMethod(), responseObserver);
+    }
   }
 
   /**
@@ -310,6 +353,17 @@ public final class ServiceGrpc {
       return io.grpc.stub.ClientCalls.asyncBidiStreamingCall(
           getChannel().newCall(getMultipleAddMethod(), getCallOptions()), responseObserver);
     }
+
+    /**
+     * <pre>
+     * find primes in a number interval
+     * </pre>
+     */
+    public void findPrimes(servicestubs.IntervalNumbers request,
+        io.grpc.stub.StreamObserver<servicestubs.IntNumber> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getFindPrimesMethod(), getCallOptions()), request, responseObserver);
+    }
   }
 
   /**
@@ -351,6 +405,17 @@ public final class ServiceGrpc {
       return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
           getChannel(), getGetEvenNumbersMethod(), getCallOptions(), request);
     }
+
+    /**
+     * <pre>
+     * find primes in a number interval
+     * </pre>
+     */
+    public java.util.Iterator<servicestubs.IntNumber> findPrimes(
+        servicestubs.IntervalNumbers request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(), getFindPrimesMethod(), getCallOptions(), request);
+    }
   }
 
   /**
@@ -386,8 +451,9 @@ public final class ServiceGrpc {
 
   private static final int METHODID_IS_ALIVE = 0;
   private static final int METHODID_GET_EVEN_NUMBERS = 1;
-  private static final int METHODID_ADD_SEQ_OF_NUMBERS = 2;
-  private static final int METHODID_MULTIPLE_ADD = 3;
+  private static final int METHODID_FIND_PRIMES = 2;
+  private static final int METHODID_ADD_SEQ_OF_NUMBERS = 3;
+  private static final int METHODID_MULTIPLE_ADD = 4;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -412,6 +478,10 @@ public final class ServiceGrpc {
           break;
         case METHODID_GET_EVEN_NUMBERS:
           serviceImpl.getEvenNumbers((servicestubs.IntNumber) request,
+              (io.grpc.stub.StreamObserver<servicestubs.IntNumber>) responseObserver);
+          break;
+        case METHODID_FIND_PRIMES:
+          serviceImpl.findPrimes((servicestubs.IntervalNumbers) request,
               (io.grpc.stub.StreamObserver<servicestubs.IntNumber>) responseObserver);
           break;
         default:
@@ -466,6 +536,13 @@ public final class ServiceGrpc {
               servicestubs.AddOperands,
               servicestubs.AddResult>(
                 service, METHODID_MULTIPLE_ADD)))
+        .addMethod(
+          getFindPrimesMethod(),
+          io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+            new MethodHandlers<
+              servicestubs.IntervalNumbers,
+              servicestubs.IntNumber>(
+                service, METHODID_FIND_PRIMES)))
         .build();
   }
 
@@ -518,6 +595,7 @@ public final class ServiceGrpc {
               .addMethod(getGetEvenNumbersMethod())
               .addMethod(getAddSeqOfNumbersMethod())
               .addMethod(getMultipleAddMethod())
+              .addMethod(getFindPrimesMethod())
               .build();
         }
       }
