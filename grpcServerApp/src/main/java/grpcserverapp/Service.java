@@ -8,6 +8,8 @@ import servicestubs.*;
 
 import java.util.Random;
 
+import static com.google.common.math.IntMath.isPrime;
+
 public class Service extends ServiceGrpc.ServiceImplBase {
 
     public Service(int svcPort) {
@@ -81,8 +83,11 @@ public class Service extends ServiceGrpc.ServiceImplBase {
                 System.out.println("  Result of ID=" + addOperands.getAddID() + " " + result.getResult());
                 responseObserver.onNext(result);
             }
+
             @Override
-            public void onError(Throwable throwable) {      }
+            public void onError(Throwable throwable) {
+            }
+
             @Override
             public void onCompleted() {
                 System.out.println("client completed requests -> completed responses");
@@ -92,10 +97,16 @@ public class Service extends ServiceGrpc.ServiceImplBase {
     }
 
     @Override
-    public StreamObserver<IntNumber> findPrimes(IntervalNumbers) {
-
+    public void findPrimes(IntervalNumbers request, StreamObserver<IntNumber> responseObserver) {
+        System.out.println("findPrimes called!");
+        for (int i = request.getStart(); i <= request.getEnd(); i++) {
+            if (isPrime(i)) {
+                responseObserver.onNext(IntNumber.newBuilder().setIntnumber(i).build());
+            }
+            // simulateExecutionTime();
+        }
+        responseObserver.onCompleted();
     }
-
 
     private void simulateExecutionTime() {
         try {

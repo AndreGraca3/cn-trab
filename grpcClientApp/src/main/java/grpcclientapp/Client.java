@@ -46,6 +46,8 @@ public class Client {
                             addSequenceOfNumbersCall(); break;
                         case 5:
                             bidirectionalStreamingCall(); break;
+                        case 6:
+                            findPrimesAsynchronousCall(); break;
                         case 99:  System.exit(0);
                     }
                 } catch (Exception ex) {
@@ -151,6 +153,16 @@ public class Client {
         // to terminate after get all results
     }
 
+    static void findPrimesAsynchronousCall() throws InterruptedException {
+        // Asynchronous non blocking call
+        IntervalNumbers interval = IntervalNumbers.newBuilder().setStart(1).setEnd(100).build();
+        PrimeNumbersStream primeStream = new PrimeNumbersStream();
+        noBlockStub.findPrimes(interval, primeStream);
+        while (!primeStream.isCompleted()) {
+            System.out.println("Simulating hard work while primes executes");
+            Thread.sleep(1000);
+        }
+    }
 
     private static int Menu() {
         int op;
@@ -163,11 +175,12 @@ public class Client {
             System.out.println(" 3 - Case server stream: get N even numbers: Asynchronous call");
             System.out.println(" 4 - Case client stream: add sequence of numbers between 1 and N");
             System.out.println(" 5 - Case bidirectional streaming (client and server): multiple add operations)");
+            System.out.println(" 6 - Case server stream: find prime numbers: Asynchronous call");
             System.out.println("99 - Exit");
             System.out.println();
             System.out.println("Choose an Option?");
             op = scan.nextInt();
-        } while (!((op >= 1 && op <= 5) || op == 99));
+        } while (!((op >= 1 && op <= 6) || op == 99));
         return op;
     }
 
