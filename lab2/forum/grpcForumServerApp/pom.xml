@@ -18,8 +18,9 @@
     <dependencies>
         <dependency>
             <groupId>isel.grpc</groupId>
-            <artifactId>grpcContract</artifactId>
+            <artifactId>grpcForumContract</artifactId>
             <version>1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
