@@ -91,7 +91,7 @@ public class Client {
     }
 
     static void getNevenNumbersAsynchronousCall() throws InterruptedException { // get N even numbers
-        // Asynchronous non blocking call
+        // Asynchronous non-blocking call
         int N = Integer.parseInt(read("How many even numbers?", new Scanner(System.in)));
         EvenNumbersStream evenStream = new EvenNumbersStream();
         noBlockStub.getEvenNumbers(IntNumber.newBuilder().setIntnumber(N).build(), evenStream);

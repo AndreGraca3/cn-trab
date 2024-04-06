@@ -7,8 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="grpcContract" />
-        <module name="grpcServerApp" />
+        <module name="grpcForumServerApp" />
         <module name="grpcClientApp" />
+        <module name="grpcForumContract" />
+        <module name="grpcServerApp" />
       </profile>
     </annotationProcessing>
   </component>
