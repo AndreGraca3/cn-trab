@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/cn-trab.iml" filepath="$PROJECT_DIR$/.idea/cn-trab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lab2/forum/grpcForumContract/grpcForumContract.iml" filepath="$PROJECT_DIR$/lab2/forum/grpcForumContract/grpcForumContract.iml" />
     </modules>
   </component>
 </project>

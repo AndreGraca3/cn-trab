@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="grpcContract" />
         <module name="grpcForumServerApp" />
+        <module name="grpcForumClientApp" />
         <module name="grpcClientApp" />
         <module name="grpcForumContract" />
         <module name="grpcServerApp" />
