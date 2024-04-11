@@ -1,5 +1,6 @@
 package grpcserverapp;
 
+import com.google.protobuf.Empty;
 import forum.*;
 import io.grpc.Status;
 import io.grpc.StatusException;
@@ -36,5 +37,28 @@ public class Service extends ServiceGrpc.ServiceImplBase {
         }
         topicSubscribers.computeIfAbsent(topic, k -> new ConcurrentHashMap<>())
                 .put(username, responseObserver);
+    }
+
+    @Override
+    public void publishMessage(ForumMessage request, StreamObserver<Empty> responseObserver) {
+        String topic = request.getTopicName();
+        if (topic == null) {
+            responseObserver.onError(
+                    new StatusException(Status.INVALID_ARGUMENT.withDescription("Invalid request parameters"))
+            );
+            return;
+        }
+        ConcurrentMap<String, StreamObserver<ForumMessage>> subscribers = topicSubscribers.get(topic);
+        if (subscribers == null) {
+            responseObserver.onError(
+                    new StatusException(Status.NOT_FOUND.withDescription("No subscribers for topic"))
+            );
+            return;
+        }
+        subscribers.forEach((username, observer) -> {
+            observer.onNext(request);
+        });
+        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 }
