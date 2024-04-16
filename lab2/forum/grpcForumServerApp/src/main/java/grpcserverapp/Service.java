@@ -42,16 +42,19 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             return;
         }
 
+        ConcurrentMap<String, StreamObserver<ForumMessage>> subscribers = topicSubscribers.get(topic);
         // if topic doesn't exist, create it!
-        if (topicSubscribers.get(topic) == null) {
-            ConcurrentMap<String, StreamObserver<ForumMessage>> cmap = new ConcurrentHashMap<>();
-            topicSubscribers.put(topic, cmap);
+        if (subscribers == null) {
+            ConcurrentMap<String, StreamObserver<ForumMessage>> map = new ConcurrentHashMap<>();
+            topicSubscribers.put(topic, map);
         }
 
         // if it does exist, just add the user to it!
-        topicSubscribers.get(topic).put(username, responseObserver);
+        subscribers.put(username, responseObserver);
 
-        responseObserver.onNext(ForumMessage.newBuilder().setFromUser(username).setTopicName(topic).setTxtMsg("Subscribed").build());
+        ForumMessage topicSubscribeMessage = ForumMessage.newBuilder().setFromUser(username).setTopicName(topic).setTxtMsg("Subscribed").build();
+        subscribers.forEach((user_name, observer) -> observer.onNext(topicSubscribeMessage));
+        responseObserver.onNext(topicSubscribeMessage);
         responseObserver.onCompleted();
     }
 
@@ -69,16 +72,16 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             );
             return;
         }
-        ConcurrentMap<String, StreamObserver<ForumMessage>> topicSubscribersMap = topicSubscribers.get(topic);
-        if (topicSubscribersMap != null) {
-            topicSubscribersMap.remove(username);
-            responseObserver.onNext(Empty.getDefaultInstance());
-            responseObserver.onCompleted();
-        } else {
+        ConcurrentMap<String, StreamObserver<ForumMessage>> subscribers = topicSubscribers.get(topic);
+        if (subscribers == null) {
             responseObserver.onError(
                     new StatusException(Status.NOT_FOUND.withDescription("Topic not found"))
             );
+            return;
         }
+        subscribers.remove(username).onCompleted();
+        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -109,7 +112,7 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             );
             return;
         }
-        subscribers.forEach((username, observer) -> observer.onNext(request));
+        subscribers.forEach((user_name, observer) -> observer.onNext(request));
         responseObserver.onNext(Empty.getDefaultInstance());
         responseObserver.onCompleted();
     }
