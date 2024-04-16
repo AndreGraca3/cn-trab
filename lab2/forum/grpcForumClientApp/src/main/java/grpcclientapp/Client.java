@@ -13,8 +13,8 @@ import java.util.Scanner;
 
 public class Client {
     // generic ClientApp for Calling a grpc Service
-    private static String svcIP = "localhost";
-    private static int svcPort = 8000;
+    private static String svcIP = "34.175.79.177";
+    private static int svcPort = 7500;
     private static ManagedChannel channel;
     private static ServiceGrpc.ServiceBlockingStub blockingStub;
     private static ServiceGrpc.ServiceStub noBlockStub;
@@ -93,7 +93,7 @@ public class Client {
     static void topicSubscribeSynchronousCall() {
         String topic = read("Topic:", new Scanner(System.in));
         SubscribeUnSubscribe request = SubscribeUnSubscribe.newBuilder().setUsrName(username).setTopicName(topic).build();
-        blockingStub.topicSubscribe(request).forEachRemaining(System.out::println);
+        blockingStub.topicSubscribe(request);
     }
 
     static void topicSubscribeAsynchronousCall() {
@@ -102,10 +102,6 @@ public class Client {
         SubscribeUnSubscribe request = SubscribeUnSubscribe.newBuilder().setUsrName(username).setTopicName(topic).build();
         ForumMessageStream messageStream = new ForumMessageStream();
         noBlockStub.topicSubscribe(request, messageStream);
-        while (!messageStream.isCompleted) {
-            System.out.println("Continue working until the message is sent");
-            //Thread.sleep(1000); // Simulate processing time (1 seg)
-        }
     }
 
     static void topicUnSubscribeAsynchronousCall() {

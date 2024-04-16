@@ -4,8 +4,10 @@ import com.google.protobuf.Empty;
 import forum.*;
 import io.grpc.Status;
 import io.grpc.StatusException;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -42,20 +44,14 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             return;
         }
 
-        ConcurrentMap<String, StreamObserver<ForumMessage>> subscribers = topicSubscribers.get(topic);
-        // if topic doesn't exist, create it!
-        if (subscribers == null) {
-            ConcurrentMap<String, StreamObserver<ForumMessage>> map = new ConcurrentHashMap<>();
-            topicSubscribers.put(topic, map);
-        }
+        ServerCallStreamObserver<ForumMessage> scs0 = (ServerCallStreamObserver<ForumMessage>) responseObserver;
+        scs0.setOnCancelHandler(() -> topicSubscribers.get(topic).remove(username).onCompleted());
 
-        // if it does exist, just add the user to it!
-        subscribers.put(username, responseObserver);
+        topicSubscribers.computeIfAbsent(topic, k -> new ConcurrentHashMap<>()).put(username, scs0);
 
         ForumMessage topicSubscribeMessage = ForumMessage.newBuilder().setFromUser(username).setTopicName(topic).setTxtMsg("Subscribed").build();
-        subscribers.forEach((user_name, observer) -> observer.onNext(topicSubscribeMessage));
-        responseObserver.onNext(topicSubscribeMessage);
-        responseObserver.onCompleted();
+        topicSubscribers.get(topic).forEach((user_name, observer) -> observer.onNext(topicSubscribeMessage));
+        scs0.onNext(topicSubscribeMessage);
     }
 
     @Override
@@ -112,7 +108,13 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             );
             return;
         }
-        subscribers.forEach((user_name, observer) -> observer.onNext(request));
+        subscribers.forEach((user_name, observer) -> {
+            try {
+                observer.onNext(request);
+            } catch (CancellationException e) {
+                topicSubscribers.get(topic).remove(user_name).onCompleted();
+            }
+        });
         responseObserver.onNext(Empty.getDefaultInstance());
         responseObserver.onCompleted();
     }
