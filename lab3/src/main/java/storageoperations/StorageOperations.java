@@ -49,7 +49,7 @@ public class StorageOperations {
                 "southamerica-east1",
                 "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6",
                 "asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1",
-                "australia-southeast1", "asia", "eu", "us", "EUR4","NAM4"
+                "australia-southeast1", "asia", "eu", "us", "EUR4", "NAM4"
         };
         int option;
         do {
@@ -197,7 +197,58 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " downloaded to " + downloadTo);
     }
 
-    // TODO: Develop other Operations. Some of them in slides
+    public void updateBlobAccessControl() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("The name of Bucket? ");
+        String bucketName = scan.nextLine();
+        System.out.println("The name of Blob? ");
+        String blobName = scan.nextLine();
+        BlobId blobId = BlobId.of(bucketName, blobName);
+        Blob blob = storage.get(blobId);
+        if (blob == null) {
+            System.out.println("No such Blob exists!");
+            return;
+        }
 
+        Acl.Entity blobUsers = Acl.User.ofAllUsers();
 
+        System.out.println("Choose the role for the Blob:");
+        System.out.println("1: READER");
+        System.out.println("2: WRITER");
+        System.out.println("3: OWNER");
+        int option;
+        do {
+            System.out.print("Choose an option: ");
+            option = scan.nextInt();
+        } while (!(option > 0 && option <= 3));
+
+        Acl.Role role = Acl.Role.READER;
+
+        switch (option) {
+            case 2:
+                role = Acl.Role.WRITER;
+                break;
+            case 3:
+                role = Acl.Role.OWNER;
+                break;
+        }
+
+        Acl acl = Acl.newBuilder(blobUsers, role).build();
+        blob.createAcl(acl);
+    }
+
+    public void deleteBlob() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("The name of Bucket? ");
+        String bucketName = scan.nextLine();
+        System.out.println("The name of Blob? ");
+        String blobName = scan.nextLine();
+        BlobId blobId = BlobId.of(bucketName, blobName);
+        Blob blob = storage.get(blobId);
+        if (blob == null) {
+            System.out.println("No such Blob exists!");
+            return;
+        }
+        blob.delete();
+    }
 }
