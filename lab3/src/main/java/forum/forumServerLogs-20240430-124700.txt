@@ -1,0 +1,4 @@
+2024/04/30 12:47:01:47:470591300 : Server started, listening on port 8000
+2024/04/30 12:47:01:48:480006300 : *** server await termination
+2024/04/30 13:02:59:17:177031800 : *** shutting down gRPC server since JVM is shutting down
+2024/04/30 13:02:59:21:212755900 : *** server shut down
