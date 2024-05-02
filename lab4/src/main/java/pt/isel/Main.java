@@ -13,6 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+
             GoogleCredentials credentials =
                     GoogleCredentials.getApplicationDefault();
 
@@ -21,7 +22,10 @@ public class Main {
                     .build();
             Firestore db = options.getService();
 
-            FirebaseOperations.insertDocuments(csvPath, db, collectionName);
+            FirebaseOperations firebaseOperations = new FirebaseOperations(db, collectionName);
+
+            firebaseOperations.printDocumentByField("Parque das Nações", "location", "freguesia");
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

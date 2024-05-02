@@ -1,29 +1,71 @@
 package pt.isel.firebase;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import pt.isel.domain.OcupacaoTemporaria;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static pt.isel.utils.Utils.convertLineToObject;
 
 public class FirebaseOperations {
-    public static void insertDocuments(String pathnameCSV, Firestore db, String collectionName)
+
+    private final Firestore db;
+    private final String collectionName;
+
+    public FirebaseOperations(Firestore db, String collectionName) {
+        this.db = db;
+        this.collectionName = collectionName;
+    }
+
+    public void insertDocuments(String pathnameCSV)
             throws Exception {
         BufferedReader reader = new BufferedReader(new FileReader(pathnameCSV));
         CollectionReference colRef = db.collection(collectionName);
         String line;
         while ((line = reader.readLine()) != null) {
-            OcupacaoTemporaria ocup = convertLineToObject(line);
-            DocumentReference docRef = colRef.document("Lab4-" + ocup.ID);
-            ApiFuture<WriteResult> resultFut = docRef.set(ocup);
+            OcupacaoTemporaria ocupacaoTemporaria = convertLineToObject(line);
+            DocumentReference docRef = colRef.document("Lab4-" + ocupacaoTemporaria.ID);
+            ApiFuture<WriteResult> resultFut = docRef.set(ocupacaoTemporaria);
             WriteResult result = resultFut.get();
             System.out.println("Update time : " + result.getUpdateTime());
+        }
+    }
+
+    public void printDocument(String id) throws ExecutionException, InterruptedException {
+        DocumentReference documentReference = db.collection(collectionName).document(id);
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot document = future.get();
+        OcupacaoTemporaria ocupacaoTemporaria = document.toObject(OcupacaoTemporaria.class);
+        System.out.println(ocupacaoTemporaria);
+    }
+
+    public void deleteDocumentField(String id, String fieldName) throws ExecutionException, InterruptedException {
+        DocumentReference documentReference = db.collection(collectionName).document(id);
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(fieldName, FieldValue.delete());
+        ApiFuture<WriteResult> writeResult = documentReference.update(updates);
+        System.out.println("Update time : " + writeResult.get());
+    }
+
+    public void printDocumentByField(String fieldValue, String... fieldNames) throws ExecutionException, InterruptedException {
+        String field = fieldNames[fieldNames.length - 1];
+        FieldPath fp = FieldPath.of(
+                Arrays.toString(
+                                Arrays.copyOf(fieldNames, fieldNames.length - 1))
+                        .replace("[", "")
+                        .replace("]", ""),
+                field
+        );
+        Query query = db.collection(collectionName).whereEqualTo(fp, fieldValue);
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+        for (DocumentSnapshot doc : querySnapshot.get().getDocuments()) {
+            System.out.println(doc);
         }
     }
 }
