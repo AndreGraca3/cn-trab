@@ -5,6 +5,9 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import pt.isel.firebase.FirebaseOperations;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Main {
 
     private static final String csvPath = "src/main/java/pt/isel/in/OcupacaoEspacosPublicos.csv";
@@ -12,6 +15,7 @@ public class Main {
     private static final String databaseId = "cn-geral-db";
 
     public static void main(String[] args) {
+
         try {
 
             GoogleCredentials credentials =
@@ -24,7 +28,17 @@ public class Main {
 
             FirebaseOperations firebaseOperations = new FirebaseOperations(db, collectionName);
 
-            firebaseOperations.printDocumentByField("Parque das Nações", "location", "freguesia");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date startDate = dateFormat.parse("31/01/2017");
+            Date endDate = dateFormat.parse("01/03/2017");
+
+            firebaseOperations.printDocumentByMultipleFields(2000, "Alvalade", "Publicitário");
+            //firebaseOperations.EventshappeningduringDate(startDate,endDate);
+            //firebaseOperations.EventsthatstartedinDate(startDate,endDate);
+
+
+
+            //firebaseOperations.printDocumentByField("Parque das Nações", "location", "freguesia");
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

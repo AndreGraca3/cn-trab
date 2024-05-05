@@ -7,6 +7,7 @@ import pt.isel.domain.OcupacaoTemporaria;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -68,4 +69,46 @@ public class FirebaseOperations {
             System.out.println(doc);
         }
     }
+
+    public void printDocumentByMultipleFields(Integer idValue, String freguesiaValue, String tipoEventoValue) throws ExecutionException, InterruptedException {
+
+        FieldPath fpfreg = FieldPath.of("location", "freguesia");
+        FieldPath fptipo = FieldPath.of("event", "tipo");
+
+        Query query = db.collection(collectionName)
+                .whereGreaterThan("ID", idValue)
+                .whereEqualTo(fpfreg, freguesiaValue)
+                .whereEqualTo(fptipo, tipoEventoValue);
+
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+        for (DocumentSnapshot doc : querySnapshot.get().getDocuments()) {
+            System.out.println(doc.getData());
+        }
+    }
+
+    public void EventsthatstartedinDate(Date startDate, Date endDate) throws ExecutionException, InterruptedException {
+        Query query = db.collection(collectionName)
+                .whereGreaterThan("event.dtInicio", startDate)
+                .whereLessThan("event.dtInicio", endDate);
+
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+        for (DocumentSnapshot doc : querySnapshot.get().getDocuments()) {
+            System.out.println(doc.getData());
+        }
+    }
+
+    public void EventshappeningduringDate(Date startDate, Date endDate) throws ExecutionException, InterruptedException {
+        Query query = db.collection(collectionName)
+                .whereGreaterThan("event.dtInicio", startDate)
+                .whereLessThan("event.dtFinal", endDate);
+
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+        for (DocumentSnapshot doc : querySnapshot.get().getDocuments()) {
+            System.out.println(doc.getData());
+        }
+    }
+
 }
