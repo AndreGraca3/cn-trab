@@ -1,10 +1,6 @@
 package storageoperations;
 
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
-
-
-import java.io.FileInputStream;
 import java.util.Scanner;
 
 public class TestStorageOperations {
@@ -61,7 +57,12 @@ public class TestStorageOperations {
                         soper.uploadBlobToBucket();
                         break;
                     case 3:
-                        soper.downloadBlobFromBucket();
+                        Scanner scan = new Scanner(System.in);
+                        System.out.println("Enter the name of the Bucket? ");
+                        String bucketName = scan.nextLine();
+                        System.out.println("Enter the name of the Blob? ");
+                        String blobName = scan.nextLine();
+                        soper.downloadBlobFromBucket(bucketName, blobName);
                         break;
                     case 4:
                         soper.deleteBucket();

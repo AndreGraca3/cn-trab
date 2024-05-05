@@ -36,7 +36,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>storageoperations.TestStorageOperations</mainClass>
+                            <mainClass>grpcclientapp.storageoperations.TestStorageOperations</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
