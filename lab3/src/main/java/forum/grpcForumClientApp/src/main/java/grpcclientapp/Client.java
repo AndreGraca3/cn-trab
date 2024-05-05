@@ -1,6 +1,5 @@
 package grpcclientapp;
 
-import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.protobuf.Empty;
 import forum.*;
@@ -16,7 +15,7 @@ import java.util.Scanner;
 
 public class Client {
     // generic ClientApp for Calling a grpc Service
-    private static String svcIP = "35.209.47.109"; // this is jose simoes' bitcoin wallet address
+    private static String svcIP = "localhost"; //"35.209.47.109";
     private static int svcPort = 8000;
     private static ManagedChannel channel;
     private static ServiceGrpc.ServiceBlockingStub blockingStub;

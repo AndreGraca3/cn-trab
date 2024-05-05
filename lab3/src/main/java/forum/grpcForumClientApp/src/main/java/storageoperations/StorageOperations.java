@@ -4,7 +4,10 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -16,6 +19,8 @@ import java.util.Scanner;
 public class StorageOperations {
 
     Storage storage = null;
+
+    private final String folderName = "src/downloads/";
 
     public StorageOperations(Storage storage) {
         this.storage = storage;
@@ -161,15 +166,15 @@ public class StorageOperations {
     }
 
     public void downloadBlobFromBucket(String bucketName, String blobName) throws IOException {
-        Path downloadTo = Paths.get("out");
-        //System.out.println("download to: "+downloadTo);
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
             System.out.println("No such Blob exists !");
             return;
         }
-        PrintStream writeTo = new PrintStream(Files.newOutputStream(downloadTo));
+        createFolder(folderName);
+        Path filepath = Path.of(folderName + blobName);
+        PrintStream writeTo = new PrintStream(Files.newOutputStream(filepath));
         if (blob.getSize() < 1_000_000) {
             // Blob is small read all its content in one request
             byte[] content = blob.getContent();
@@ -187,7 +192,7 @@ public class StorageOperations {
             }
         }
         writeTo.close();
-        System.out.println("Blob " + blobName + " downloaded to " + downloadTo);
+        System.out.println("Blob " + blobName + " downloaded to " + filepath);
     }
 
     public void updateBlobAccessControl() {
@@ -243,5 +248,10 @@ public class StorageOperations {
             return;
         }
         blob.delete();
+    }
+
+    private void createFolder(String path) {
+        File fileDirectory = new File(path);
+        if (!fileDirectory.exists()) fileDirectory.mkdirs();
     }
 }
