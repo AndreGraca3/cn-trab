@@ -10,6 +10,7 @@
         <module name="grpcForumClientApp" />
         <module name="grpcClientApp" />
         <module name="grpcForumContract" />
+        <module name="CN-StorageBaseOperations" />
         <module name="grpcServerApp" />
         <module name="lab4" />
         <module name="grpcContract" />
