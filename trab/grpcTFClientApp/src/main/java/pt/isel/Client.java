@@ -21,6 +21,7 @@ public class Client {
     private static ServiceGrpc.ServiceStub noBlockStub;
 
     private static String username;
+    private static final int BLOCK_CAPACITY = 64 * 1024; // 64 KB
 
     public static void main(String[] args) {
         try {
@@ -89,12 +90,13 @@ public class Client {
         var scanner = new Scanner(System.in);
         String file = read("Insert path to file: ", scanner);
         StreamObserver<Block> blockStreamObserver = noBlockStub.uploadImage(new ImageIdentifierStream());
-        ByteBuffer byteBuffer = ByteBuffer.allocate(64 * 1024);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(BLOCK_CAPACITY);
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             while (fileInputStream.read(byteBuffer.array()) > 0) {
                 byteBuffer.flip();
-                var block = Block.newBuilder().setBytes(ByteString.copyFrom(byteBuffer.array())).build();
-                blockStreamObserver.onNext(block);
+                blockStreamObserver.onNext(
+                        Block.newBuilder().setBytes(ByteString.copyFrom(byteBuffer.array())).build()
+                );
                 byteBuffer.clear();
             }
             blockStreamObserver.onCompleted();

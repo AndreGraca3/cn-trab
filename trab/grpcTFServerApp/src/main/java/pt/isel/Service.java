@@ -8,7 +8,6 @@ import pt.isel.storage.StorageOperations;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
@@ -47,11 +46,11 @@ public class Service extends ServiceGrpc.ServiceImplBase {
             @Override
             public void onCompleted() {
                 String blobName = "ola.png";
-                try {
+                String filePathString = pathString + blobName;
+
+                try (FileOutputStream fos = new FileOutputStream(filePathString);) {
                     byte[] imageBytes = toByteArray(data);
-                    String filePathString = pathString + blobName;
                     Path filePath = Path.of(filePathString);
-                    FileOutputStream fos = new FileOutputStream(filePathString);
                     fos.write(imageBytes);
                     _storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName, filePath);
                 } catch (IOException e) {
