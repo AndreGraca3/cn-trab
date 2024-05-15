@@ -20,7 +20,7 @@ public class StorageOperations {
 
     Storage storage = null;
 
-    private final String folderName = "src/downloads/";
+    private final String folderName = "./src/downloads/";
 
     public StorageOperations(Storage storage) {
         this.storage = storage;

@@ -1,16 +1,22 @@
 package pt.isel;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+import label.Block;
 import label.ServiceGrpc;
+import pt.isel.streams.ImageIdentifierStream;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 public class Client {
     // generic ClientApp for Calling a grpc Service
     private static String svcIP = "localhost";
     private static int svcPort = 8000;
-    private static ManagedChannel channel;
     private static ServiceGrpc.ServiceBlockingStub blockingStub;
     private static ServiceGrpc.ServiceStub noBlockStub;
 
@@ -23,7 +29,10 @@ public class Client {
                 svcPort = Integer.parseInt(args[1]);
             }
             System.out.println("connect to " + svcIP + ":" + svcPort);
-            channel = ManagedChannelBuilder.forAddress(svcIP, svcPort)
+            // Channels are secure by default (via SSL/TLS).
+            // For the example we disable TLS to avoid
+            // needing certificates.
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(svcIP, svcPort)
                     // Channels are secure by default (via SSL/TLS).
                     // For the example we disable TLS to avoid
                     // needing certificates.
@@ -38,6 +47,9 @@ public class Client {
                 try {
                     int option = Menu();
                     switch (option) {
+                        case 2:
+                            uploadImageAsynchronousCall();
+                            break;
                         case 99:
                             System.exit(0);
                     }
@@ -61,7 +73,7 @@ public class Client {
             System.out.println();
             System.out.println("    MENU");
             System.out.println(" 1 - Case Unary call: server isAlive");
-            System.out.println(" 2 - Insert operation here");
+            System.out.println(" 2 - Upload an image");
             System.out.println(" 3 - Insert operation here");
             System.out.println(" 4 - Insert operation here");
             System.out.println(" 5 - Insert operation here");
@@ -71,6 +83,22 @@ public class Client {
             op = scan.nextInt();
         } while (!((op >= 1 && op <= 5) || op == 99));
         return op;
+    }
+
+    static void uploadImageAsynchronousCall() throws IOException {
+        var scanner = new Scanner(System.in);
+        String file = read("Insert path to file: ", scanner);
+        StreamObserver<Block> blockStreamObserver = noBlockStub.uploadImage(new ImageIdentifierStream());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(64 * 1024);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            while (fileInputStream.read(byteBuffer.array()) > 0) {
+                byteBuffer.flip();
+                var block = Block.newBuilder().setBytes(ByteString.copyFrom(byteBuffer.array())).build();
+                blockStreamObserver.onNext(block);
+                byteBuffer.clear();
+            }
+            blockStreamObserver.onCompleted();
+        }
     }
 
     private static String read(String msg, Scanner input) {

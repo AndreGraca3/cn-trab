@@ -13,7 +13,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class StorageOperations {
@@ -96,54 +95,31 @@ public class StorageOperations {
         return LOCALS[option - 1];
     }
 
-    public void createBucket() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        Bucket bucket = storage.create(
+    public void createBucket(String bucketName) {
+        storage.create(
                 BucketInfo.newBuilder(bucketName)
                         // See here for possible values: http://g.co/cloud/storage/docs/storage-classes
-                        .setStorageClass(getStorageClass())
+                        .setStorageClass(StorageClass.STANDARD)
                         // Possible values: http://g.co/cloud/storage/docs/bucket-locations#location-mr
-                        .setLocation(getLocation())
+                        .setLocation("asia-south1")
                         .build());
     }
 
-    public void deleteBucket() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket to delete? ");
-        String bucketName = scan.nextLine();
+    public void deleteBucket(String bucketName) {
         Bucket bucket = storage.get(bucketName);
         bucket.delete();
     }
 
-    public void listBuckets(String projID) throws Exception {
+    public Iterable<Bucket> listBuckets(String projID) throws Exception {
         System.out.println("Buckets in Project=" + projID + ":");
-
-        for (Bucket bucket : storage.list().iterateAll()) {
-            System.out.println("  " + bucket.toString());
-            for (Blob blob : bucket.list().iterateAll()) {
-                System.out.println("      " + blob.toString());
-            }
-
-        }
+        return storage.list().getValues();
     }
 
-    public void uploadBlobToBucket() throws Exception {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Enter the name of the Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("Enter the name of the Blob? ");
-        String blobName = scan.nextLine();
-        System.out.println("Enter the pathname of the file to upload? ");
-        String absFileName = scan.nextLine();
-        Path uploadFrom = Paths.get(absFileName);
-        String contentType = Files.probeContentType(uploadFrom);
+    public void uploadBlobToBucket(String bucketName, String blobName, Path uploadFrom) throws IOException {
         BlobId blobId = BlobId.of(bucketName, blobName);
+        String contentType = Files.probeContentType(uploadFrom);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
         if (Files.size(uploadFrom) > 1_000_000) {
-            // When content is not available or large (1MB or more) it is recommended
-            // to write it in chunks via the blob's channel writer.
             try (WriteChannel writer = storage.writer(blobInfo)) {
                 byte[] buffer = new byte[1024];
                 try (InputStream input = Files.newInputStream(uploadFrom)) {
@@ -159,7 +135,6 @@ public class StorageOperations {
             }
         } else {
             byte[] bytes = Files.readAllBytes(uploadFrom);
-            // create the blob in one request.
             storage.create(blobInfo, bytes);
         }
         System.out.println("Blob " + blobName + " created in bucket " + bucketName);
@@ -195,12 +170,7 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " downloaded to " + filepath);
     }
 
-    public void updateBlobAccessControl() {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("The name of Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("The name of Blob? ");
-        String blobName = scan.nextLine();
+    public void updateBlobAccessControl(String bucketName, String blobName, Acl.Role role) {
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
@@ -210,37 +180,11 @@ public class StorageOperations {
 
         Acl.Entity blobUsers = Acl.User.ofAllUsers();
 
-        System.out.println("Choose the role for the Blob:");
-        System.out.println("1: READER");
-        System.out.println("2: WRITER");
-        System.out.println("3: OWNER");
-        int option;
-        do {
-            System.out.print("Choose an option: ");
-            option = scan.nextInt();
-        } while (!(option > 0 && option <= 3));
-
-        Acl.Role role = Acl.Role.READER;
-
-        switch (option) {
-            case 2:
-                role = Acl.Role.WRITER;
-                break;
-            case 3:
-                role = Acl.Role.OWNER;
-                break;
-        }
-
         Acl acl = Acl.newBuilder(blobUsers, role).build();
         blob.createAcl(acl);
     }
 
-    public void deleteBlob() {
-        Scanner scan = new Scanner(System.in);
-        System.out.println("The name of Bucket? ");
-        String bucketName = scan.nextLine();
-        System.out.println("The name of Blob? ");
-        String blobName = scan.nextLine();
+    public void deleteBlob(String bucketName, String blobName) {
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
