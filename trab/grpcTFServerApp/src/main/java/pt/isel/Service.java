@@ -27,8 +27,8 @@ public class Service extends ServiceGrpc.ServiceImplBase {
 
     @Override
     public StreamObserver<Block> uploadImage(StreamObserver<Identifier> responseObserver) {
+        ArrayList<Byte> data = new ArrayList<>();
         return new StreamObserver<>() {
-            ArrayList<Byte> data = new ArrayList<>();
 
             @Override
             public void onNext(Block block) {
@@ -40,7 +40,7 @@ public class Service extends ServiceGrpc.ServiceImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-
+                System.out.println(throwable.getMessage());
             }
 
             @Override

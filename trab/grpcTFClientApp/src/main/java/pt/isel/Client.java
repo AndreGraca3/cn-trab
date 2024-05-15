@@ -89,7 +89,8 @@ public class Client {
     static void uploadImageAsynchronousCall() throws IOException {
         var scanner = new Scanner(System.in);
         String file = read("Insert path to file: ", scanner);
-        StreamObserver<Block> blockStreamObserver = noBlockStub.uploadImage(new ImageIdentifierStream());
+        ImageIdentifierStream imageIdentifierStream = new ImageIdentifierStream();
+        StreamObserver<Block> blockStreamObserver = noBlockStub.uploadImage(imageIdentifierStream);
         ByteBuffer byteBuffer = ByteBuffer.allocate(BLOCK_CAPACITY);
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             while (fileInputStream.read(byteBuffer.array()) > 0) {
@@ -100,6 +101,9 @@ public class Client {
                 byteBuffer.clear();
             }
             blockStreamObserver.onCompleted();
+        }
+        while (!imageIdentifierStream.isCompleted) {
+            System.out.println("currently waiting for Identifier...");
         }
     }
 

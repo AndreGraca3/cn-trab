@@ -9,7 +9,7 @@ public class ImageIdentifierStream implements StreamObserver<Identifier> {
 
     @Override
     public void onNext(Identifier Id) {
-
+        System.out.println("O identificador do ficheiro é" + Id);
     }
 
     @Override
