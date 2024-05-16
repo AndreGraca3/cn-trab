@@ -5,12 +5,15 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import label.Block;
+import label.RequestTimestamp;
 import label.ServiceGrpc;
 import pt.isel.streams.ImageIdentifierStream;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Client {
@@ -20,7 +23,6 @@ public class Client {
     private static ServiceGrpc.ServiceBlockingStub blockingStub;
     private static ServiceGrpc.ServiceStub noBlockStub;
 
-    private static String username;
     private static final int BLOCK_CAPACITY = 64 * 1024; // 64 KB
 
     public static void main(String[] args) {
@@ -42,12 +44,13 @@ public class Client {
             blockingStub = ServiceGrpc.newBlockingStub(channel);
             noBlockStub = ServiceGrpc.newStub(channel);
             // Call service operations for example ping server
-            boolean end = false;
-            username = read("Enter your username: ", new Scanner(System.in));
-            while (!end) {
+            while (true) {
                 try {
                     int option = Menu();
                     switch (option) {
+                        case 1:
+                            isAlive();
+                            break;
                         case 2:
                             uploadImageAsynchronousCall();
                             break;
@@ -59,7 +62,6 @@ public class Client {
                     ex.printStackTrace();
                 }
             }
-            read("Press enter to end", new Scanner(System.in));
         } catch (Exception ex) {
             System.out.println("Unhandled exception");
             ex.printStackTrace();
@@ -84,6 +86,25 @@ public class Client {
             op = scan.nextInt();
         } while (!((op >= 1 && op <= 5) || op == 99));
         return op;
+    }
+
+    static void isAlive() {
+        var startTime = LocalDateTime.now();
+        var ping = blockingStub.isAlive(
+                RequestTimestamp
+                        .newBuilder()
+                        .setTimestamp(startTime.toString())
+                        .build());
+        System.out.println("Ping is " + ping.getPing());
+    }
+
+    public static byte[] getImageBytes(String imagePath) throws IOException {
+        File file = new File(imagePath);
+        FileInputStream fis = new FileInputStream(file);
+        byte[] imageBytes = new byte[(int) file.length()];
+        fis.read(imageBytes);
+        fis.close();
+        return imageBytes;
     }
 
     static void uploadImageAsynchronousCall() throws IOException {

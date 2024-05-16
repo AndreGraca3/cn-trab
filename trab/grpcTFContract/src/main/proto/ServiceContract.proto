@@ -8,7 +8,7 @@ package label;
 // Service contract operations
 service Service {
   // ping server for testing service availability
-  rpc isAlive(ProtoVoid) returns (TextMessage);
+  rpc isAlive(RequestTimestamp) returns (PingResult);
   // uploads an Image by sending blocks of bytes
   rpc uploadImage(stream Block) returns (Identifier);
   // obtains an Image details by the given identifier
@@ -19,9 +19,11 @@ service Service {
   // rpc downloadImage(ImageStream) returns (google.protobuf.Empty);
 }
 
-message ProtoVoid {}
+message RequestTimestamp {
+  string timestamp = 1;
+}
 
-message TextMessage {string txt = 1;}
+message PingResult {int32 ping = 1;}
 
 message Block {
   bytes bytes = 1;

@@ -2,9 +2,9 @@ package pt.isel;
 
 // generic ServerApp for hosting grpcService
 
+import com.google.cloud.pubsub.v1.TopicAdminClient;
 import com.google.cloud.storage.StorageOptions;
 import io.grpc.ServerBuilder;
-import pt.isel.storage.StorageOperations;
 
 public class GrpcServer {
 
@@ -12,12 +12,16 @@ public class GrpcServer {
 
     public static void main(String[] args) {
         try {
-            StorageOperations storageOperations = new StorageOperations(StorageOptions.getDefaultInstance().getService());
+            StorageOperations storageOperations =
+                    new StorageOperations(StorageOptions.getDefaultInstance().getService());
+
+            TopicAdminClient topicAdminClient = TopicAdminClient.create();
+            PubSubOperations pubSubOperations = new PubSubOperations(topicAdminClient);
+
             if (args.length > 0) svcPort = Integer.parseInt(args[0]);
             io.grpc.Server svc = ServerBuilder.forPort(svcPort)
-                    // Add one or more services.
-                    // The Server can host many services in same TCP/IP port
-                    .addService(new Service(svcPort, storageOperations))
+                    .addService(new FunctionalService(svcPort, storageOperations, pubSubOperations))
+                    // Add elasticity management service here on same port
                     .build();
             svc.start();
             System.out.println("Server started on port " + svcPort);

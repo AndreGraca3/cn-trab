@@ -1,4 +1,4 @@
-package pt.isel.storage;
+package pt.isel;
 
 import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
@@ -17,91 +17,19 @@ import java.util.Scanner;
 
 public class StorageOperations {
 
-    Storage storage = null;
-
-    private final String folderName = "src/downloads/";
+    Storage storage;
 
     public StorageOperations(Storage storage) {
         this.storage = storage;
     }
 
-    StorageClass getStorageClass() {
-        Scanner scan = new Scanner(System.in);
-        StorageClass[] CLASSES = new StorageClass[]{
-                StorageClass.STANDARD,
-                StorageClass.NEARLINE,
-                StorageClass.COLDLINE,
-                StorageClass.ARCHIVE
-        };
-        int option;
-        do {
-            System.out.println("Options for Google Storage Class:");
-            System.out.println("1: STANDARD");
-            System.out.println("2: NEARLINE");
-            System.out.println("3: COLDLINE");
-            System.out.println("4: ARCHIVE");
-            System.out.print("Choose an option: ");
-            option = scan.nextInt();
-        } while (!(option > 0 && option <= 4));
-        return CLASSES[option - 1];
-    }
-
-    String getLocation() {
-        Scanner scan = new Scanner(System.in);
-        String[] LOCALS = new String[]{
-                "northamerica-northeast1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2",
-                "southamerica-east1",
-                "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6",
-                "asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1",
-                "australia-southeast1", "asia", "eu", "us", "EUR4", "NAM4"
-        };
-        int option;
-        do {
-            System.out.println("Region names:");
-            System.out.println("North America:");
-            System.out.println("1:northamerica-northeast1	 (Montréal)");
-            System.out.println("2:us-central1	(Iowa)");
-            System.out.println("3:us-east1	(South Carolina)");
-            System.out.println("4: us-east4	(Northern Virginia)");
-            System.out.println("5:us-west1	(Oregon)");
-            System.out.println("6:us-west2	(Los Angeles)");
-            System.out.println("South America:");
-            System.out.println("7:southamerica-east1	(São Paulo)");
-            System.out.println("Europe");
-            System.out.println("8:europe-north1	(Finland)");
-            System.out.println("9:europe-west1	(Belgium)");
-            System.out.println("10:europe-west2	(London)");
-            System.out.println("11:europe-west3	(Frankfurt)");
-            System.out.println("12:europe-west4	(Netherlands)");
-            System.out.println("13:europe-west6	(Zürich)");
-            System.out.println("Asia:");
-            System.out.println("14:asia-east1	(Taiwan)");
-            System.out.println("15:asia-east2	(Hong Kong)");
-            System.out.println("16:asia-northeast1	(Tokyo)");
-            System.out.println("17:asia-south1	(Mumbai)");
-            System.out.println("18:asia-southeast1	(Singapore)");
-            System.out.println("Australia:");
-            System.out.println("19:australia-southeast1	(Sydney)");
-            System.out.println("Multi-regional locations:");
-            System.out.println("20:asia	(Data centers in Asia)");
-            System.out.println("21:eu	 (Data centers in the European Union1)");
-            System.out.println("22:us	 (Data centers in the United States)");
-            System.out.println("Dual-region locations:");
-            System.out.println("23: EUR4 	EUROPE-NORTH1 and EUROPE-WEST4");
-            System.out.println("24: NAM4 	US-CENTRAL1 and US-EAST1");
-            System.out.print("Choose an option: ");
-            option = scan.nextInt();
-        } while (!(option > 0 && option <= 24));
-        return LOCALS[option - 1];
-    }
-
-    public void createBucket(String bucketName) {
+    public void createBucket(String bucketName, String location) {
         storage.create(
                 BucketInfo.newBuilder(bucketName)
                         // See here for possible values: http://g.co/cloud/storage/docs/storage-classes
                         .setStorageClass(StorageClass.STANDARD)
                         // Possible values: http://g.co/cloud/storage/docs/bucket-locations#location-mr
-                        .setLocation("asia-south1")
+                        .setLocation(location)
                         .build());
     }
 
@@ -110,11 +38,13 @@ public class StorageOperations {
         bucket.delete();
     }
 
-    public Iterable<Bucket> listBuckets(String projID) throws Exception {
-        System.out.println("Buckets in Project=" + projID + ":");
-        return storage.list().getValues();
-    }
-
+    /**
+     * Uploads a file to a bucket.
+     * @param bucketName - name of the bucket
+     * @param blobName - name of the blob
+     * @param uploadFrom - path to the file to upload
+     * @throws IOException - if an error occurs while reading the file
+     */
     public void uploadBlobToBucket(String bucketName, String blobName, Path uploadFrom) throws IOException {
         BlobId blobId = BlobId.of(bucketName, blobName);
         String contentType = Files.probeContentType(uploadFrom);
@@ -140,15 +70,38 @@ public class StorageOperations {
         System.out.println("Blob " + blobName + " created in bucket " + bucketName);
     }
 
-    public void downloadBlobFromBucket(String bucketName, String blobName) throws IOException {
+    /**
+     * Uploads a byte array to a bucket.
+     * @param bucketName - name of the bucket
+     * @param blobName - name of the blob
+     * @param bytes - byte array to upload
+     */
+    public void uploadBlobToBucket(String bucketName, String blobName, byte[] bytes) {
+        BlobId blobId = BlobId.of(bucketName, blobName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+        // if buffer size is greater than 1MB, use WriteChannel
+        if (bytes.length > 1_000_000) {
+            try (WriteChannel writer = storage.writer(blobInfo)) {
+                writer.write(ByteBuffer.wrap(bytes));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            storage.create(blobInfo, bytes);
+        }
+        System.out.println("Blob " + blobName + " created in bucket " + bucketName);
+    }
+
+    public void downloadBlobFromBucket(String bucketName, String blobName, String outFolderName) throws IOException {
         BlobId blobId = BlobId.of(bucketName, blobName);
         Blob blob = storage.get(blobId);
         if (blob == null) {
             System.out.println("No such Blob exists !");
             return;
         }
-        createFolder(folderName);
-        Path filepath = Path.of(folderName + blobName);
+        createFolder(outFolderName);
+        Path filepath = Path.of(outFolderName + blobName);
         PrintStream writeTo = new PrintStream(Files.newOutputStream(filepath));
         if (blob.getSize() < 1_000_000) {
             // Blob is small read all its content in one request

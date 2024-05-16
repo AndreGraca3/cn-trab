@@ -1,4 +1,4 @@
-package pt.isel.firebase;
+package pt.isel;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;

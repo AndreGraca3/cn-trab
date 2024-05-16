@@ -1,4 +1,4 @@
-package pt.isel.logginApp;
+package pt.isel.logging;
 
 public class LoggingApp {
 }

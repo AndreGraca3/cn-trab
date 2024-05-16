@@ -1,4 +1,4 @@
-package pt.isel.labelApp.vision;
+package pt.isel.vision;
 
 import com.google.cloud.vision.v1.*;
 
