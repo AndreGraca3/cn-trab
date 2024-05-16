@@ -10,13 +10,15 @@ public class GrpcServer {
 
     private static int svcPort = 8000;
 
+    private static final String PROJECT_ID = "cn2324-t1-g15";
+
     public static void main(String[] args) {
         try {
             StorageOperations storageOperations =
                     new StorageOperations(StorageOptions.getDefaultInstance().getService());
 
             TopicAdminClient topicAdminClient = TopicAdminClient.create();
-            PubSubOperations pubSubOperations = new PubSubOperations(topicAdminClient);
+            PubSubOperations pubSubOperations = new PubSubOperations(topicAdminClient, PROJECT_ID);
 
             if (args.length > 0) svcPort = Integer.parseInt(args[0]);
             io.grpc.Server svc = ServerBuilder.forPort(svcPort)

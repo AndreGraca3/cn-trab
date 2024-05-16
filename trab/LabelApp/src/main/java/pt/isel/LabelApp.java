@@ -7,20 +7,24 @@ import com.google.cloud.pubsub.v1.TopicAdminClient;
 
 public class LabelApp {
 
-    private static final String collectionName = "Labels";
-    private static final String databaseId = "cn-geral-db";
+    // GCP
+    private static final String PROJECT_ID = "cn2324-t1-g15";
+
+    // Firestore
+    private static final String COLLECTION_NAME = "Labels";
+    private static final String DATABASE_ID = "cn-geral-db";
 
     public static void main(String[] args) {
         try {
             TopicAdminClient topicAdminClient = TopicAdminClient.create();
-            PubSubOperations pubSubOperations = new PubSubOperations(topicAdminClient);
+            PubSubOperations pubSubOperations = new PubSubOperations(topicAdminClient, PROJECT_ID);
 
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
             FirestoreOptions options = FirestoreOptions
-                    .newBuilder().setDatabaseId(databaseId).setCredentials(credentials)
+                    .newBuilder().setDatabaseId(DATABASE_ID).setCredentials(credentials)
                     .build();
             Firestore db = options.getService();
-            FirebaseOperations firebaseOperations = new FirebaseOperations(db, collectionName);
+            FirebaseOperations firebaseOperations = new FirebaseOperations(db, COLLECTION_NAME);
 
             LabelService labelService = new LabelService(pubSubOperations, firebaseOperations);
             labelService.awaitImageProcessing();

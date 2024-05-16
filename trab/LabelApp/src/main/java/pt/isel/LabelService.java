@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class LabelService {
 
-    private static final String PENDING_LABEL_TOPIC_ID = "projects/cn2324-t1-g15/topics/pending-labels";
+    private static final String LABELS_SUB_ID = "labels-sub";
 
     private final PubSubOperations pubSubOperations;
     private final FirebaseOperations firebaseOperations;
@@ -21,7 +21,7 @@ public class LabelService {
     }
 
     public void awaitImageProcessing() {
-        pubSubOperations.subscribeToTopic(PENDING_LABEL_TOPIC_ID, new MessageReceiver() {
+        var subscriber = pubSubOperations.subscribeMessages(LABELS_SUB_ID, new MessageReceiver() {
             @Override
             public void receiveMessage(PubsubMessage pubsubMessage, AckReplyConsumer ackReplyConsumer) {
                 try {
@@ -36,6 +36,9 @@ public class LabelService {
                 }
             }
         });
+        subscriber.startAsync().awaitRunning();
+        System.out.println("Listening for messages on " + LABELS_SUB_ID + "...");
+        subscriber.awaitTerminated();
     }
 
     public void createLabels(String bucketName, String blobName) throws IOException {

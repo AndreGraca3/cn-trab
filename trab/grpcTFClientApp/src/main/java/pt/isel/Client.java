@@ -95,7 +95,7 @@ public class Client {
                         .newBuilder()
                         .setTimestamp(startTime.toString())
                         .build());
-        System.out.println("Ping is " + ping.getPing());
+        System.out.println("Ping is " + ping.getPing() + "ms");
     }
 
     public static byte[] getImageBytes(String imagePath) throws IOException {
