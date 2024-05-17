@@ -3,51 +3,63 @@ package pt.isel;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.pubsub.v1.PubsubMessage;
+import pt.isel.domain.Label;
+import pt.isel.domain.LabeledImage;
+import pt.isel.firestore.LabelRepository;
 import pt.isel.translator.TranslatorService;
 import pt.isel.vision.VisionService;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class LabelService {
 
-    private static final String LABELS_SUB_ID = "labels-sub";
-
     private final PubSubOperations pubSubOperations;
-    private final FirebaseOperations firebaseOperations;
+    private final LabelRepository labelRepository;
 
-    public LabelService(PubSubOperations pubSubOperations, FirebaseOperations firebaseOperations) {
+    public LabelService(PubSubOperations pubSubOperations, LabelRepository labelRepository) {
         this.pubSubOperations = pubSubOperations;
-        this.firebaseOperations = firebaseOperations;
+        this.labelRepository = labelRepository;
     }
 
-    public void awaitImageProcessing() {
-        var subscriber = pubSubOperations.subscribeMessages(LABELS_SUB_ID, new MessageReceiver() {
+    public void awaitImageRequest(String labelsSubId, String saveCollectionName) {
+        var subscriber = pubSubOperations.subscribeMessages(labelsSubId, new MessageReceiver() {
             @Override
             public void receiveMessage(PubsubMessage pubsubMessage, AckReplyConsumer ackReplyConsumer) {
                 try {
                     // Process the message
                     var attributesMap = pubsubMessage.getAttributesMap();
+                    var requestId = pubsubMessage.getData().toStringUtf8();
                     var bucketName = attributesMap.get("bucketName");
                     var blobName = attributesMap.get("blobName");
-                    createLabels(bucketName, blobName);
+
+                    // Process the image
+                    // Thread.sleep(9000); // Simulate processing time
+                    var labels = createLabels(bucketName, blobName);
+                    var image = new LabeledImage(requestId, labels);
+                    labelRepository.saveLabeledImage(image, saveCollectionName);
+
                     ackReplyConsumer.ack(); // Acknowledge the message only after processing
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    System.out.println("Labels saved for image: " + blobName);
+                } catch (IOException | ExecutionException | InterruptedException e) {
+                    ackReplyConsumer.nack();
+                    e.printStackTrace();
                 }
             }
         });
         subscriber.startAsync().awaitRunning();
-        System.out.println("Listening for messages on " + LABELS_SUB_ID + "...");
+        System.out.println("Awaiting images on subscription" + labelsSubId + "...");
         subscriber.awaitTerminated();
     }
 
-    public void createLabels(String bucketName, String blobName) throws IOException {
+    public List<Label> createLabels(String bucketName, String blobName) throws IOException {
+        System.out.println("Processing image: " + blobName);
         var location = "gs://" + bucketName + "/" + blobName;
         var rawLabels = VisionService.detectLabels(location);
-        var translations = TranslatorService.translate(rawLabels);
 
-        System.out.println("Labels: " + rawLabels);
-        System.out.println("Translations: " + translations);
-        // TODO: Save to Firestore
+        return rawLabels.stream()
+                .map(rawLabel -> new Label(rawLabel, TranslatorService.translate(rawLabel)))
+                .toList();
     }
 }

@@ -1,4 +1,4 @@
-package pt.isel;
+package pt.isel.server;
 
 public class ShutdownHook extends Thread {
     io.grpc.Server svc;

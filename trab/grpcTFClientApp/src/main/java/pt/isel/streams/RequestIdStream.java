@@ -1,15 +1,15 @@
 package pt.isel.streams;
 
 import io.grpc.stub.StreamObserver;
-import label.Identifier;
+import label.RequestId;
 
-public class ImageIdentifierStream implements StreamObserver<Identifier> {
+public class RequestIdStream implements StreamObserver<RequestId> {
 
     public boolean isCompleted = false;
 
     @Override
-    public void onNext(Identifier Id) {
-        System.out.println("O identificador do ficheiro é" + Id);
+    public void onNext(RequestId id) {
+        System.out.println("Request id: " + id.getId());
     }
 
     @Override

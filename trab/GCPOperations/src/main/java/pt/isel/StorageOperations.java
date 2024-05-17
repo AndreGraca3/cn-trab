@@ -49,6 +49,7 @@ public class StorageOperations {
         BlobId blobId = BlobId.of(bucketName, blobName);
         String contentType = Files.probeContentType(uploadFrom);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
+
         if (Files.size(uploadFrom) > 1_000_000) {
             try (WriteChannel writer = storage.writer(blobInfo)) {
                 byte[] buffer = new byte[1024];

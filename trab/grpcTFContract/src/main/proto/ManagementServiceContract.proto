@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+option java_multiple_files = true;
+option java_package = "management";
+package management;
+
+// Management Service contract operations
+service ManagementService {
+  // ping server for testing service availability
+  rpc IsAlive(RequestTimestamp) returns (PingResponse);
+
+  // increase the number of instances of the gRPC server
+  rpc IncreaseGRPCServerInstances(InstanceCount) returns (google.protobuf.Empty);
+
+  // decrease the number of instances of the gRPC server
+  rpc DecreaseGRPCServerInstances(InstanceCount) returns (google.protobuf.Empty);
+
+  // increase the number of instances of the image processing server
+  rpc IncreaseImageProcessingInstances(InstanceCount) returns (google.protobuf.Empty);
+
+  // decrease the number of instances of the image processing server
+  rpc DecreaseImageProcessingInstances(InstanceCount) returns (google.protobuf.Empty);
+}
+
+message RequestTimestamp {
+  string timestamp = 1;
+}
+
+message PingResponse {int32 ping = 1;}
+
+message InstanceCount {
+  int32 count = 1;
+}

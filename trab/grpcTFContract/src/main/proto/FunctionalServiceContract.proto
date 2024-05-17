@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+option java_multiple_files = true;
+option java_package = "label";
+package label;
+
+// Functional Service contract operations
+service FunctionalService {
+  // ping server for testing service availability
+  rpc IsAlive(RequestTimestamp) returns (PingResponse);
+
+  // uploads an Image by sending blocks of bytes to be labeled
+  rpc SubmitImageForLabeling(stream ImageChunkRequest) returns (RequestId);
+
+  // obtains an Image details by the given identifier
+  rpc GetLabeledImageByRequestId(RequestId) returns (LabeledImageResponse);
+
+  // obtains names of files between 2 dates and with a label
+  rpc GetFileNamesWithLabel(FileNamesWithLabelRequest) returns (FileNamesWithLabelResponse);
+
+  // downloads an image given by the server
+  // rpc downloadImage(ImageStream) returns (google.protobuf.Empty);
+}
+
+message RequestTimestamp {
+  string timestamp = 1;
+}
+
+message PingResponse {int32 ping = 1;}
+
+message ImageChunkRequest {
+  bytes chunk_data = 1;
+}
+
+message RequestId {string Id = 1;}
+
+message LabelResponse {
+  string value = 1;
+  string translation = 2;
+}
+
+message LabeledImageResponse {
+  RequestId request_id = 1;
+  repeated LabelResponse labels = 2;
+  string process_date = 3;
+}
+
+message FileNamesWithLabelRequest {
+  string start_date = 1;
+  string end_date = 2;
+  string label = 3;
+}
+
+message FileNamesWithLabelResponse {
+  repeated string file_names = 1;
+}
