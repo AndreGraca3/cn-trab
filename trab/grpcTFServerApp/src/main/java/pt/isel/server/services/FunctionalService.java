@@ -123,4 +123,39 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
             e.printStackTrace();
         }
     }
+
+
+    @Override
+    public void getFileNamesWithLabel(FileNamesWithLabelRequest request, StreamObserver<FileNamesWithLabelResponse> responseObserver) {
+        try {
+
+            var ids = labelRepository.getImageId(request.getLabel(),request.getStartDate(),request.getEndDate(),"Labels");
+            if (ids.isEmpty()) {
+                responseObserver.onError(
+                        Status.NOT_FOUND.withDescription("Images with label:" +request.getLabel()+
+                                " that started between "+request.getStartDate()+" and "+request.getEndDate()+
+                                " were not found").asRuntimeException()
+                );
+                return;
+            }
+
+            FileNamesWithLabelResponse.Builder responseBuilder = FileNamesWithLabelResponse.newBuilder();
+
+            for (String id : ids) {
+                responseBuilder.addFileNames(id);
+            }
+
+            FileNamesWithLabelResponse response = responseBuilder.build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (ExecutionException | InterruptedException e) {
+            responseObserver.onError(e);
+            e.printStackTrace();
+        }
+    }
+
+
+
 }

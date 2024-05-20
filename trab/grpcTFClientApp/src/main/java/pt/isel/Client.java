@@ -52,6 +52,9 @@ public class Client {
                     case 3:
                         getLabeledImageByRequestId();
                         break;
+                    case 4:
+                        GetFileNamesWithLabel();
+                        break;
                     case 99:
                         System.exit(0);
                 }
@@ -71,7 +74,7 @@ public class Client {
             System.out.println(" 1 - Case Unary call: server isAlive");
             System.out.println(" 2 - Submit an image for labeling");
             System.out.println(" 3 - Get labels for an image");
-            System.out.println(" 4 - Insert operation here");
+            System.out.println(" 4 - Search images by labels and date");
             System.out.println(" 5 - Insert operation here");
             System.out.println("99 - Exit");
             System.out.println();
@@ -135,6 +138,29 @@ public class Client {
                 RequestId.newBuilder().setId(requestId).build(), new LabeledImageStream()
         );
     }
+
+
+    static void GetFileNamesWithLabel() {
+        var label = read("Insert request label: ", new Scanner(System.in));
+
+        var startdate = read("Insert request start date(yyyy-MM-dd): ", new Scanner(System.in));
+
+        var enddate = read("Insert request end date(yyyy-MM-dd): ", new Scanner(System.in));
+
+
+
+        var l = blockingStub.getFileNamesWithLabel(
+                FileNamesWithLabelRequest.newBuilder().setLabel(label).setStartDate(startdate).setEndDate(enddate).build()
+        );
+        System.out.println("Labels for image " + label +", " + startdate+", " + enddate + ":");
+        l.getFileNamesList().forEach(x ->
+                System.out.println(x)
+        );
+
+
+    }
+
+
 
     private static String read(String msg, Scanner input) {
         System.out.println(msg);
