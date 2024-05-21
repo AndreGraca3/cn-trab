@@ -5,9 +5,11 @@ import io.grpc.stub.StreamObserver;
 import label.*;
 import pt.isel.PubSubOperations;
 import pt.isel.StorageOperations;
+import pt.isel.domain.LabeledImage;
 import pt.isel.firestore.LabelRepository;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,6 +30,9 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
 
     // Google Pub/Sub
     private static final String PENDING_LABEL_TOPIC_ID = "pending-labels";
+
+    // Firestore
+    private static final String LABELS_COLLECTION_NAME = "Labels";
 
     public FunctionalService(int svcPort, StorageOperations storageOperations, PubSubOperations pubSubOperations, LabelRepository labelRepository) {
         this.storageOperations = storageOperations;
@@ -95,7 +100,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
         try {
 
             // Retrieve labeled image from Firestore
-            var image = labelRepository.getLabeledImage(request.getId(), "Labels");
+            var image = labelRepository.getLabeledImage(request.getId(), LABELS_COLLECTION_NAME);
             if (image == null) {
                 responseObserver.onError(
                         Status.NOT_FOUND.withDescription("Image not found").asRuntimeException()
@@ -124,38 +129,27 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
         }
     }
 
-
     @Override
     public void getFileNamesWithLabel(FileNamesWithLabelRequest request, StreamObserver<FileNamesWithLabelResponse> responseObserver) {
         try {
+            var simpleDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            var labels = labelRepository.getLabeledImagesByLabel(
+                    request.getLabel(),
+                    simpleDateFormat.parse(request.getStartDate()),
+                    simpleDateFormat.parse(request.getEndDate()),
+                    LABELS_COLLECTION_NAME
+            );
+            var fileNames = labels.stream().map(LabeledImage::getFileName).toList();
 
-            var ids = labelRepository.getImageId(request.getLabel(),request.getStartDate(),request.getEndDate(),"Labels");
-            if (ids.isEmpty()) {
-                responseObserver.onError(
-                        Status.NOT_FOUND.withDescription("Images with label:" +request.getLabel()+
-                                " that started between "+request.getStartDate()+" and "+request.getEndDate()+
-                                " were not found").asRuntimeException()
-                );
-                return;
-            }
-
-            FileNamesWithLabelResponse.Builder responseBuilder = FileNamesWithLabelResponse.newBuilder();
-
-            for (String id : ids) {
-                responseBuilder.addFileNames(id);
-            }
-
-            FileNamesWithLabelResponse response = responseBuilder.build();
-
-            responseObserver.onNext(response);
+            responseObserver.onNext(FileNamesWithLabelResponse.newBuilder()
+                    .addAllFileNames(fileNames)
+                    .build()
+            );
             responseObserver.onCompleted();
 
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | ParseException e) {
             responseObserver.onError(e);
             e.printStackTrace();
         }
     }
-
-
-
 }

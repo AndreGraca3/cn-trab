@@ -37,8 +37,8 @@ public class LabelService {
                     // Process the image
                     // Thread.sleep(9000); // Simulate processing time
                     var labels = createLabels(bucketName, blobName);
-                    var image = new LabeledImage(requestId, labels);
-                    labelRepository.saveLabeledImage(image, saveCollectionName);
+                    var image = new LabeledImage(requestId, blobName, labels);
+                    labelRepository.saveLabeledImage(image, saveCollectionName); // Save image in Firestore
 
                     ackReplyConsumer.ack(); // Acknowledge the message only after processing
                     System.out.println("Labels saved for image: " + blobName);

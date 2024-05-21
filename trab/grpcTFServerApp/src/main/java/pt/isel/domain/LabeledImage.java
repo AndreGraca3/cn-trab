@@ -7,6 +7,7 @@ public class LabeledImage {
 
     private String requestId;
     private List<Label> labels;
+    private String fileName;
     private Date processedAt;
 
     public LabeledImage() {
@@ -18,6 +19,10 @@ public class LabeledImage {
 
     public List<Label> getLabels() {
         return labels;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public Date getProcessedAt() {

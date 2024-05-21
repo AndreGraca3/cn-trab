@@ -62,6 +62,9 @@ public class Client {
                 System.out.println("Execution call Error !");
                 ex.printStackTrace();
             }
+            System.out.println();
+            read("Press Enter to continue...", new Scanner(System.in));
+            System.out.println("-".repeat(50));
         }
     }
 
@@ -75,12 +78,11 @@ public class Client {
             System.out.println(" 2 - Submit an image for labeling");
             System.out.println(" 3 - Get labels for an image");
             System.out.println(" 4 - Search images by labels and date");
-            System.out.println(" 5 - Insert operation here");
             System.out.println("99 - Exit");
             System.out.println();
             System.out.println("Choose an Option?");
             op = scan.nextInt();
-        } while (!((op >= 1 && op <= 5) || op == 99));
+        } while (!((op >= 1 && op <= 4) || op == 99));
         return op;
     }
 
@@ -119,7 +121,8 @@ public class Client {
     }
 
     static void getLabeledImageByRequestId() {
-        var requestId = read("Insert request id: ", new Scanner(System.in));
+        var scanner = new Scanner(System.in);
+        var requestId = read("Insert request id: ", scanner);
 
         var labels = blockingStub.getLabeledImageByRequestId(
                 RequestId.newBuilder().setId(requestId).build()
@@ -131,37 +134,25 @@ public class Client {
         );
     }
 
-    static void getLabeledImageByRequestIdAsync() {
-        var requestId = read("Insert request id: ", new Scanner(System.in));
-
-        noBlockStub.getLabeledImageByRequestId(
-                RequestId.newBuilder().setId(requestId).build(), new LabeledImageStream()
-        );
-    }
-
-
     static void GetFileNamesWithLabel() {
-        var label = read("Insert request label: ", new Scanner(System.in));
+        var scanner = new Scanner(System.in);
+        var label = read("Insert request label: ", scanner);
+        var startDate = read("Insert request start date(yyyy-MM-dd): ", scanner);
+        var endDate = read("Insert request end date(yyyy-MM-dd): ", scanner);
 
-        var startdate = read("Insert request start date(yyyy-MM-dd): ", new Scanner(System.in));
-
-        var enddate = read("Insert request end date(yyyy-MM-dd): ", new Scanner(System.in));
-
-
-
-        var l = blockingStub.getFileNamesWithLabel(
-                FileNamesWithLabelRequest.newBuilder().setLabel(label).setStartDate(startdate).setEndDate(enddate).build()
+        var fileNames = blockingStub.getFileNamesWithLabel(
+                FileNamesWithLabelRequest
+                        .newBuilder()
+                        .setLabel(label)
+                        .setStartDate(startDate)
+                        .setEndDate(endDate)
+                        .build()
         );
-        System.out.println("Labels for image " + label +", " + startdate+", " + enddate + ":");
-        l.getFileNamesList().forEach(x ->
-                System.out.println(x)
-        );
-
-
+        System.out.println("File names for label " + label + " between " + startDate + " and " + endDate + ":");
+        fileNames.getFileNamesList().forEach(System.out::println);
     }
 
-
-
+    // helper method to read a string from the console
     private static String read(String msg, Scanner input) {
         System.out.println(msg);
         return input.nextLine();
