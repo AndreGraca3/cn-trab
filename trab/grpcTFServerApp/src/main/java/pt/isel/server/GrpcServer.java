@@ -10,6 +10,7 @@ import pt.isel.PubSubOperations;
 import pt.isel.StorageOperations;
 import pt.isel.firestore.LabelRepository;
 import pt.isel.server.services.FunctionalService;
+import pt.isel.server.services.ManagementService;
 
 public class GrpcServer {
 
@@ -39,7 +40,7 @@ public class GrpcServer {
             if (args.length > 0) svcPort = Integer.parseInt(args[0]);
             io.grpc.Server svc = ServerBuilder.forPort(svcPort)
                     .addService(new FunctionalService(svcPort, storageOperations, pubSubOperations, labelRepository))
-                    //.addService(new ManagementService(svcPort))
+                    .addService(new ManagementService(svcPort))
                     .build();
 
             svc.start();

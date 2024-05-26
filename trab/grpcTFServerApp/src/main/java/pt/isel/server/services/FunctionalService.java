@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static pt.isel.utils.ArrayUtils.toByteArray;
 
@@ -115,7 +116,8 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
                                     .setTranslation(label.getTranslation())
                                     .build()
                     )
-                    .toList();
+                    .collect(Collectors.toList()); //.toList();
+
 
             responseObserver.onNext(LabeledImageResponse.newBuilder()
                     .setRequestId(RequestId.newBuilder().setId(image.getRequestId()).build())
@@ -139,7 +141,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
                     simpleDateFormat.parse(request.getEndDate()),
                     LABELS_COLLECTION_NAME
             );
-            var fileNames = labels.stream().map(LabeledImage::getFileName).toList();
+            var fileNames = labels.stream().map(LabeledImage::getFileName).collect(Collectors.toList());//.toList();
 
             responseObserver.onNext(FileNamesWithLabelResponse.newBuilder()
                     .addAllFileNames(fileNames)

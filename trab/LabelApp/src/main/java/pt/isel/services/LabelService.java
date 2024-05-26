@@ -13,6 +13,7 @@ import pt.isel.vision.VisionService;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class LabelService {
 
@@ -61,6 +62,6 @@ public class LabelService {
 
         return rawLabels.stream()
                 .map(rawLabel -> new Label(rawLabel, TranslatorService.translate(rawLabel)))
-                .toList();
+                .collect(Collectors.toList());//.toList();
     }
 }
