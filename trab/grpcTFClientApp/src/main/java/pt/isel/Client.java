@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Client {
-    private static String svcIP = "34.175.36.5";//"localhost";
-    private static int svcPort = 7500;//8000;
+    private static String svcIP = "localhost";
+    private static int svcPort = 7500;
     private static FunctionalServiceGrpc.FunctionalServiceBlockingStub blockingStub;
     private static FunctionalServiceGrpc.FunctionalServiceStub noBlockStub;
 
@@ -101,11 +101,10 @@ public class Client {
     }
 
     static void isAlive() {
-        var startTime = LocalDateTime.now();
         var ping = blockingStub.isAlive(
-                RequestTimestamp
+                RequestTimeMillis
                         .newBuilder()
-                        .setTimestamp(startTime.toString())
+                        .setTime(System.currentTimeMillis())
                         .build());
         System.out.println("Ping is " + ping.getPing() + "ms");
     }

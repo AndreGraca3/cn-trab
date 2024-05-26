@@ -10,8 +10,6 @@ import pt.isel.firestore.LabelRepository;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -43,9 +41,10 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     }
 
     @Override
-    public void isAlive(RequestTimestamp request, StreamObserver<PingResponse> responseObserver) {
-        LocalDateTime startTime = LocalDateTime.parse(request.getTimestamp());
-        var ping = (int) Duration.between(startTime, LocalDateTime.now()).toMillis();
+    public void isAlive(RequestTimeMillis request, StreamObserver<PingResponse> responseObserver) {
+        var startTime = request.getTime();
+        var currentTimeMillis = System.currentTimeMillis();
+        var ping = (int) (currentTimeMillis - startTime);
 
         responseObserver.onNext(PingResponse.newBuilder().setPing(ping).build());
         responseObserver.onCompleted();
@@ -60,12 +59,8 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
             public void onNext(ImageChunkRequest chunk) {
                 System.out.println("Received a block from client...");
                 for (byte imageByte : chunk.getChunkData()) {
-
                     data.add(imageByte);
                 }
-
-
-
             }
 
             @Override
@@ -80,7 +75,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
                 try {
                     // Save image to Google Cloud Storage
                     byte[] imageBytes = toByteArray(data);
-                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName , imageBytes);
+                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName, imageBytes);
 
                     // Publish message to Pub/Sub
                     var requestId = BUCKET_NAME + blobName;

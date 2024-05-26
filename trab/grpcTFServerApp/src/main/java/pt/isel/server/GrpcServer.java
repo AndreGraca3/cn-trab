@@ -14,7 +14,7 @@ import pt.isel.server.services.ManagementService;
 
 public class GrpcServer {
 
-    private static int svcPort = 8000;
+    private static int svcPort = 7500;
 
     // GCP
     private static final String PROJECT_ID = "cn2324-t1-g15";
