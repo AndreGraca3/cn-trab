@@ -63,8 +63,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
 
                     data.add(imageByte);
                 }
-                System.out.println(data);
-                System.out.println(chunk.getChunkData().size());
+
 
 
             }

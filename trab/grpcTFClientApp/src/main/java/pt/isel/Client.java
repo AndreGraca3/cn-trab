@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Client {
-    private static String svcIP = "localhost";
-    private static int svcPort = 8000;
+    private static String svcIP = "34.175.36.5";//"localhost";
+    private static int svcPort = 7500;//8000;
     private static FunctionalServiceGrpc.FunctionalServiceBlockingStub blockingStub;
     private static FunctionalServiceGrpc.FunctionalServiceStub noBlockStub;
 
@@ -61,6 +61,12 @@ public class Client {
                     case 4:
                         GetFileNamesWithLabel();
                         break;
+                    case 5:
+                        ChangeGRPCServerInstances();
+                        break;
+                    case 6:
+                        ChangeGRPCLabelInstances();
+                        break;
                     case 99:
                         System.exit(0);
                 }
@@ -84,6 +90,8 @@ public class Client {
             System.out.println(" 2 - Submit an image for labeling");
             System.out.println(" 3 - Get labels for an image");
             System.out.println(" 4 - Search images by labels and date");
+            System.out.println(" 5 - Change gRPC server instances");
+            System.out.println(" 6 - Change gRPC label instances");
             System.out.println("99 - Exit");
             System.out.println();
             System.out.println("Choose an Option?");
