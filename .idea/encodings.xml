@@ -17,5 +17,17 @@
     <file url="file://$PROJECT_DIR$/lab3/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/lab4/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/lab4/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/GCPOperations/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/GCPOperations/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/LabelApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/LabelApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/LoggingApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/LoggingApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFClientApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFClientApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFContract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFContract/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFServerApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/trab/grpcTFServerApp/src/main/resources" charset="UTF-8" />
   </component>
 </project>

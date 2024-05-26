@@ -1,8 +1,9 @@
-package pt.isel;
+package pt.isel.services;
 
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.pubsub.v1.PubsubMessage;
+import pt.isel.PubSubOperations;
 import pt.isel.domain.Label;
 import pt.isel.domain.LabeledImage;
 import pt.isel.firestore.LabelRepository;

@@ -16,10 +16,16 @@
         <option value="$PROJECT_DIR$/lab2/forum/grpcForumClientApp/pom.xml" />
         <option value="$PROJECT_DIR$/lab4/pom.xml" />
         <option value="$PROJECT_DIR$/lab3/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/LoggingApp/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/LabelApp/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/grpcTFServerApp/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/grpcTFContract/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/grpcTFClientApp/pom.xml" />
+        <option value="$PROJECT_DIR$/trab/GCPOperations/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ProjectType">

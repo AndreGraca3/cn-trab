@@ -1,10 +1,13 @@
 package pt.isel;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import label.*;
+import management.InstanceCount;
+import management.ManagementServiceGrpc;
 import pt.isel.streams.LabeledImageStream;
 import pt.isel.streams.RequestIdStream;
 
@@ -19,6 +22,9 @@ public class Client {
     private static int svcPort = 8000;
     private static FunctionalServiceGrpc.FunctionalServiceBlockingStub blockingStub;
     private static FunctionalServiceGrpc.FunctionalServiceStub noBlockStub;
+
+    private static ManagementServiceGrpc.ManagementServiceBlockingStub blockingStubManagement;
+    private static ManagementServiceGrpc.ManagementServiceStub noBlockStubManagement;
 
     private static final int BLOCK_CAPACITY = 64 * 1024; // 64 KB
 
@@ -150,6 +156,61 @@ public class Client {
         );
         System.out.println("File names for label " + label + " between " + startDate + " and " + endDate + ":");
         fileNames.getFileNamesList().forEach(System.out::println);
+    }
+
+
+
+    static void ChangeGRPCServerInstances() {
+        var scanner = new Scanner(System.in);
+        var count = read("Insert the number of instances to increase: ", scanner);
+
+        InstanceCount instanceCount = InstanceCount.newBuilder().setCount(Integer.parseInt(count)).build();
+        noBlockStubManagement.changeGRPCServerInstances(instanceCount, new StreamObserver<Empty>() {
+            @Override
+            public void onNext(Empty value) {
+                System.out.println("Increased the number of gRPC server instances by " + count);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("Error increasing the number of gRPC server instances");
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Increased the number of gRPC server instances by " + count);
+            }
+        });
+
+        System.out.println("Increased the number of gRPC server instances by " + count);
+    }
+
+
+
+
+    static void ChangeGRPCLabelInstances() {
+        var scanner = new Scanner(System.in);
+        var count = read("Insert the number of instances to increase: ", scanner);
+
+        InstanceCount instanceCount = InstanceCount.newBuilder().setCount(Integer.parseInt(count)).build();
+        noBlockStubManagement.changeImageProcessingInstances(instanceCount, new StreamObserver<Empty>() {
+            @Override
+            public void onNext(Empty value) {
+                System.out.println("Increased the number of gRPC server instances by " + count);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("Error increasing the number of gRPC server instances");
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Increased the number of gRPC server instances by " + count);
+            }
+        });
+
+        System.out.println("Increased the number of Label instances by " + count);
     }
 
     // helper method to read a string from the console

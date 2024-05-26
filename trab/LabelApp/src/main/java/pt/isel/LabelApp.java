@@ -5,6 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.pubsub.v1.TopicAdminClient;
 import pt.isel.firestore.LabelRepository;
+import pt.isel.services.LabelService;
 
 public class LabelApp {
 

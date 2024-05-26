@@ -39,7 +39,7 @@ public class GrpcServer {
             if (args.length > 0) svcPort = Integer.parseInt(args[0]);
             io.grpc.Server svc = ServerBuilder.forPort(svcPort)
                     .addService(new FunctionalService(svcPort, storageOperations, pubSubOperations, labelRepository))
-                    // Add elasticity management service here on same port
+                    //.addService(new ManagementService(svcPort))
                     .build();
 
             svc.start();
