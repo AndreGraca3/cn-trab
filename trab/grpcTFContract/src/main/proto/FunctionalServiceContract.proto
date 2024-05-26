@@ -31,6 +31,8 @@ message PingResponse {int32 ping = 1;}
 
 message ImageChunkRequest {
   bytes chunk_data = 1;
+  string file_name = 2;
+  string content_type = 3;
 }
 
 message RequestId {string Id = 1;}

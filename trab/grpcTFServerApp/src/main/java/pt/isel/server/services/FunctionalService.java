@@ -44,11 +44,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     public void isAlive(PingRequest request, StreamObserver<PingResponse> responseObserver) {
         var startTime = (long) request.getRequestTimeMillis();
         var currentTimeMillis = System.nanoTime();
-        System.out.println("Starting time: " + startTime);
-        System.out.println("Current time: " + currentTimeMillis);
-
         var ping = (int) (currentTimeMillis - startTime)/1000000;
-        System.out.println("Difference: " + ping);
 
         responseObserver.onNext(PingResponse.newBuilder().setPing(ping).build());
         responseObserver.onCompleted();
@@ -57,12 +53,18 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     @Override
     public StreamObserver<ImageChunkRequest> submitImageForLabeling(StreamObserver<RequestId> responseObserver) {
         ArrayList<Byte> data = new ArrayList<>();
+
         return new StreamObserver<>() {
+        String blobName;
+        String contentType;
 
             @Override
-            public void onNext(ImageChunkRequest chunk) {
+            public void onNext(ImageChunkRequest chunkInfo) {
                 System.out.println("Received a block from client...");
-                for (byte imageByte : chunk.getChunkData()) {
+                blobName = chunkInfo.getFileName();
+                contentType = chunkInfo.getContentType();
+
+                for (byte imageByte : chunkInfo.getChunkData()) {
                     data.add(imageByte);
                 }
             }
@@ -74,12 +76,10 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
 
             @Override
             public void onCompleted() {
-                String blobName = UUID.randomUUID().toString();
-
                 try {
                     // Save image to Google Cloud Storage
                     byte[] imageBytes = toByteArray(data);
-                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName, imageBytes);
+                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName, contentType, imageBytes);
 
                     // Publish message to Pub/Sub
                     var requestId = BUCKET_NAME + blobName;

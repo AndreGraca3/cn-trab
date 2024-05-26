@@ -14,6 +14,8 @@ import pt.isel.streams.RequestIdStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
@@ -96,7 +98,7 @@ public class Client {
             System.out.println();
             System.out.println("Choose an Option?");
             op = scan.nextInt();
-        } while (!((op >= 1 && op <= 4) || op == 99));
+        } while (!((op >= 1 && op <= 6) || op == 99));
         return op;
     }
 
@@ -112,6 +114,7 @@ public class Client {
     static void submitImageForLabeling() throws IOException {
         var scanner = new Scanner(System.in);
         String file = read("Insert path to file: ", scanner);
+        Path path = Path.of(file);
 
         // Call the service operation to get the stream to send the image
         RequestIdStream requestIdStream = new RequestIdStream();
@@ -125,6 +128,8 @@ public class Client {
                 byteBuffer.flip();
                 var imageChunkRequest = ImageChunkRequest.newBuilder()
                         .setChunkData(ByteString.copyFrom(byteBuffer.array()))
+                        .setFileName(path.getFileName().toString())
+                        .setContentType(Files.probeContentType(path))
                         .build();
                 imageChunkStreamObserver.onNext(imageChunkRequest);
                 byteBuffer.clear();
