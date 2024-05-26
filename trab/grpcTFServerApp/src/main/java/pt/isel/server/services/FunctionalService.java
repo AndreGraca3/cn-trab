@@ -60,8 +60,13 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
             public void onNext(ImageChunkRequest chunk) {
                 System.out.println("Received a block from client...");
                 for (byte imageByte : chunk.getChunkData()) {
+
                     data.add(imageByte);
                 }
+                System.out.println(data);
+                System.out.println(chunk.getChunkData().size());
+
+
             }
 
             @Override
@@ -76,7 +81,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
                 try {
                     // Save image to Google Cloud Storage
                     byte[] imageBytes = toByteArray(data);
-                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName, imageBytes);
+                    storageOperations.uploadBlobToBucket(BUCKET_NAME, blobName , imageBytes);
 
                     // Publish message to Pub/Sub
                     var requestId = BUCKET_NAME + blobName;

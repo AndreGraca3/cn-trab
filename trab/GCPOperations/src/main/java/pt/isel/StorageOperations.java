@@ -4,10 +4,8 @@ import com.google.cloud.ReadChannel;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -77,9 +75,11 @@ public class StorageOperations {
      * @param blobName - name of the blob
      * @param bytes - byte array to upload
      */
-    public void uploadBlobToBucket(String bucketName, String blobName, byte[] bytes) {
+    public void uploadBlobToBucket(String bucketName, String blobName, byte[] bytes) throws IOException {
         BlobId blobId = BlobId.of(bucketName, blobName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+        BufferedInputStream content = new BufferedInputStream(new ByteArrayInputStream(bytes));
+        String mimeType = URLConnection.guessContentTypeFromStream(content);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(mimeType).build();
 
         // if buffer size is greater than 1MB, use WriteChannel
         if (bytes.length > 1_000_000) {
