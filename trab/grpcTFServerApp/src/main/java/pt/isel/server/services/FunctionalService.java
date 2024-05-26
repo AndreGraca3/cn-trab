@@ -104,7 +104,6 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     @Override
     public void getLabeledImageByRequestId(RequestId request, StreamObserver<LabeledImageResponse> responseObserver) {
         try {
-
             // Retrieve labeled image from Firestore
             var image = labelRepository.getLabeledImage(request.getId(), LABELS_COLLECTION_NAME);
             if (image == null) {

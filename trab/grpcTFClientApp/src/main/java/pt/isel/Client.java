@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Client {
-    private static String svcIP = "34.175.244.80";//"localhost";
-    private static int svcPort = 7500;
+    private static String svcIP = "localhost";
+    private static int svcPort = 8000;
     private static FunctionalServiceGrpc.FunctionalServiceBlockingStub blockingStub;
     private static FunctionalServiceGrpc.FunctionalServiceStub noBlockStub;
 
@@ -101,7 +101,7 @@ public class Client {
                         .build());
         System.out.println("Ping is " + ping.getPing() + "ms");
     }
-//C:\Users\bolta\Documents\GitHub\cn-trab\trab\grpcTFClientApp\images\foguete.png
+
     static void submitImageForLabeling() throws IOException {
         var scanner = new Scanner(System.in);
         String file = read("Insert path to file: ", scanner);
@@ -158,8 +158,6 @@ public class Client {
         fileNames.getFileNamesList().forEach(System.out::println);
     }
 
-
-
     static void ChangeGRPCServerInstances() {
         var scanner = new Scanner(System.in);
         var count = read("Insert the number of instances to increase: ", scanner);
@@ -184,9 +182,6 @@ public class Client {
 
         System.out.println("Increased the number of gRPC server instances by " + count);
     }
-
-
-
 
     static void ChangeGRPCLabelInstances() {
         var scanner = new Scanner(System.in);

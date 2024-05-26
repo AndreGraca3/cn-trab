@@ -1,14 +1,17 @@
 package pt.isel.firestore;
 
 
-import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QuerySnapshot;
+import pt.isel.domain.Label;
+import pt.isel.domain.LabeledImage;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import pt.isel.domain.LabeledImage;
+import java.util.stream.Collectors;
 
 public class LabelRepository {
     private final Firestore db;
@@ -19,10 +22,21 @@ public class LabelRepository {
 
     public LabeledImage getLabeledImage(String requestId, String collectionName) throws ExecutionException, InterruptedException {
         var doc = db.collection(collectionName).document(requestId).get().get();
-        if (doc.exists()) {
-            return doc.toObject(LabeledImage.class);
-        }
-        return null;
+
+        var image = doc.toObject(LabeledImage.class);
+        if (image == null) return null;
+
+        var labels = doc.getReference()
+                .collection("labels")
+                .get().get().getDocuments()
+                .stream().map(it -> it.toObject(Label.class)).collect(Collectors.toList());
+
+        return new LabeledImage(
+                image.getRequestId(),
+                labels,
+                image.getFileName(),
+                image.getProcessedAt()
+        );
     }
 
     public List<LabeledImage> getLabeledImagesByLabel(

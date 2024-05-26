@@ -13,6 +13,13 @@ public class LabeledImage {
     public LabeledImage() {
     }
 
+    public LabeledImage(String requestId, List<Label> newLabels, String fileName, Date processedAt) {
+        this.requestId = requestId;
+        this.labels = newLabels;
+        this.fileName = fileName;
+        this.processedAt = processedAt;
+    }
+
     public String getRequestId() {
         return requestId;
     }
