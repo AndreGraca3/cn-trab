@@ -30,9 +30,9 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
 
     @Override
     public void changeGRPCServerInstances(InstanceCount request, StreamObserver<Empty> responseObserver) {
-        String projectID = "cn-g15";
+        String projectID = "cn2324-t1-g15";
         String zone = "europe-southwest1-a";
-        String instanceGroupName = "grpc-server-group";
+        String instanceGroupName = "instance-group-server";
         int count = request.getCount();
 
 
@@ -61,9 +61,9 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
 
     @Override
     public void changeImageProcessingInstances(InstanceCount request, StreamObserver<Empty> responseObserver) {
-        String projectID = "cn-g15";
+        String projectID = "cn2324-t1-g15";
         String zone = "europe-southwest1-a";
-        String instanceGroupName = "grpc-Label-group";
+        String instanceGroupName = "instance-group-label";
         int count = request.getCount();
 
 
