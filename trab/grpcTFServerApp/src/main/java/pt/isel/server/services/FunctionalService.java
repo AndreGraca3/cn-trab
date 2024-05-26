@@ -41,10 +41,14 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     }
 
     @Override
-    public void isAlive(RequestTimeMillis request, StreamObserver<PingResponse> responseObserver) {
-        var startTime = request.getTime();
-        var currentTimeMillis = System.currentTimeMillis();
-        var ping = (int) (currentTimeMillis - startTime);
+    public void isAlive(PingRequest request, StreamObserver<PingResponse> responseObserver) {
+        var startTime = (long) request.getRequestTimeMillis();
+        var currentTimeMillis = System.nanoTime();
+        System.out.println("Starting time: " + startTime);
+        System.out.println("Current time: " + currentTimeMillis);
+
+        var ping = (int) (currentTimeMillis - startTime)/1000000;
+        System.out.println("Difference: " + ping);
 
         responseObserver.onNext(PingResponse.newBuilder().setPing(ping).build());
         responseObserver.onCompleted();

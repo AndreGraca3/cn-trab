@@ -102,9 +102,9 @@ public class Client {
 
     static void isAlive() {
         var ping = blockingStub.isAlive(
-                RequestTimeMillis
+                PingRequest
                         .newBuilder()
-                        .setTime(System.currentTimeMillis())
+                        .setRequestTimeMillis(System.nanoTime())
                         .build());
         System.out.println("Ping is " + ping.getPing() + "ms");
     }
