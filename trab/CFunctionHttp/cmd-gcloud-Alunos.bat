@@ -1,0 +1,1 @@
+gcloud functions deploy cf-list-group-run-vms --project=<project id> --region=europe-west1 --allow-unauthenticated --entry-point=functionhttp.Entrypoint --no-gen2 --runtime=java11 --trigger-http --source=target/deployment --service-account=<identificador (principal) de conta de serviço com role Compute Admin>

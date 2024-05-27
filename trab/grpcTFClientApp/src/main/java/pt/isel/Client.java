@@ -8,7 +8,6 @@ import io.grpc.stub.StreamObserver;
 import label.*;
 import management.InstanceCount;
 import management.ManagementServiceGrpc;
-import pt.isel.streams.LabeledImageStream;
 import pt.isel.streams.RequestIdStream;
 
 import java.io.FileInputStream;
@@ -16,17 +15,16 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Client {
-    private static String svcIP = "localhost";
+    private static String svcIP = "34.175.129.245";
     private static int svcPort = 7500;
-    private static FunctionalServiceGrpc.FunctionalServiceBlockingStub blockingStub;
-    private static FunctionalServiceGrpc.FunctionalServiceStub noBlockStub;
+    private static FunctionalServiceGrpc.FunctionalServiceBlockingStub functionalServiceBlockingStub;
+    private static FunctionalServiceGrpc.FunctionalServiceStub functionalServiceStub;
 
-    private static ManagementServiceGrpc.ManagementServiceBlockingStub blockingStubManagement;
-    private static ManagementServiceGrpc.ManagementServiceStub noBlockStubManagement;
+    private static ManagementServiceGrpc.ManagementServiceBlockingStub managementServiceBlockingStub;
+    private static ManagementServiceGrpc.ManagementServiceStub managementServiceStub;
 
     private static final int BLOCK_CAPACITY = 64 * 1024; // 64 KB
 
@@ -45,8 +43,12 @@ public class Client {
                 // needing certificates.
                 .usePlaintext()
                 .build();
-        blockingStub = FunctionalServiceGrpc.newBlockingStub(channel);
-        noBlockStub = FunctionalServiceGrpc.newStub(channel);
+        functionalServiceBlockingStub = FunctionalServiceGrpc.newBlockingStub(channel);
+        functionalServiceStub = FunctionalServiceGrpc.newStub(channel);
+
+        managementServiceBlockingStub = ManagementServiceGrpc.newBlockingStub(channel);
+        managementServiceStub = ManagementServiceGrpc.newStub(channel);
+
         while (true) {
             try {
                 int option = Menu();
@@ -67,7 +69,7 @@ public class Client {
                         ChangeGRPCServerInstances();
                         break;
                     case 6:
-                        ChangeGRPCLabelInstances();
+                        ChangeLabelAppInstances();
                         break;
                     case 99:
                         System.exit(0);
@@ -103,7 +105,7 @@ public class Client {
     }
 
     static void isAlive() {
-        var ping = blockingStub.isAlive(
+        var ping = functionalServiceBlockingStub.isAlive(
                 PingRequest
                         .newBuilder()
                         .setRequestTimeMillis(System.nanoTime())
@@ -119,7 +121,7 @@ public class Client {
         // Call the service operation to get the stream to send the image
         RequestIdStream requestIdStream = new RequestIdStream();
         StreamObserver<ImageChunkRequest> imageChunkStreamObserver
-                = noBlockStub.submitImageForLabeling(requestIdStream);
+                = functionalServiceStub.submitImageForLabeling(requestIdStream);
 
         // Send the image in blocks
         ByteBuffer byteBuffer = ByteBuffer.allocate(BLOCK_CAPACITY);
@@ -142,7 +144,7 @@ public class Client {
         var scanner = new Scanner(System.in);
         var requestId = read("Insert request id: ", scanner);
 
-        var labels = blockingStub.getLabeledImageByRequestId(
+        var labels = functionalServiceBlockingStub.getLabeledImageByRequestId(
                 RequestId.newBuilder().setId(requestId).build()
         );
 
@@ -158,7 +160,7 @@ public class Client {
         var startDate = read("Insert request start date(yyyy-MM-dd): ", scanner);
         var endDate = read("Insert request end date(yyyy-MM-dd): ", scanner);
 
-        var fileNames = blockingStub.getFileNamesWithLabel(
+        var fileNames = functionalServiceBlockingStub.getFileNamesWithLabel(
                 FileNamesWithLabelRequest
                         .newBuilder()
                         .setLabel(label)
@@ -170,54 +172,54 @@ public class Client {
         fileNames.getFileNamesList().forEach(System.out::println);
     }
 
+    // Management Service
+
     static void ChangeGRPCServerInstances() {
         var scanner = new Scanner(System.in);
-        var count = read("Insert the number of instances to increase: ", scanner);
+        var count = read("Insert the number of instances to change to: ", scanner);
 
         InstanceCount instanceCount = InstanceCount.newBuilder().setCount(Integer.parseInt(count)).build();
-        noBlockStubManagement.changeGRPCServerInstances(instanceCount, new StreamObserver<Empty>() {
+        managementServiceStub.changeGRPCServerInstances(instanceCount, new StreamObserver<Empty>() {
             @Override
             public void onNext(Empty value) {
-                System.out.println("Increased the number of gRPC server instances by " + count);
             }
 
             @Override
             public void onError(Throwable t) {
-                System.out.println("Error increasing the number of gRPC server instances");
+                System.out.println("Error changing the number of gRPC server instances");
             }
 
             @Override
             public void onCompleted() {
-                System.out.println("Increased the number of gRPC server instances by " + count);
+                System.out.println("Changed the number of gRPC server instances to " + count + " successfully");
             }
         });
 
-        System.out.println("Increased the number of gRPC server instances by " + count);
+        System.out.println("Instance number change scheduled, please wait...");
     }
 
-    static void ChangeGRPCLabelInstances() {
+    static void ChangeLabelAppInstances() {
         var scanner = new Scanner(System.in);
         var count = read("Insert the number of instances to increase: ", scanner);
 
         InstanceCount instanceCount = InstanceCount.newBuilder().setCount(Integer.parseInt(count)).build();
-        noBlockStubManagement.changeImageProcessingInstances(instanceCount, new StreamObserver<Empty>() {
+        managementServiceStub.changeImageProcessingInstances(instanceCount, new StreamObserver<Empty>() {
             @Override
             public void onNext(Empty value) {
-                System.out.println("Increased the number of gRPC server instances by " + count);
             }
 
             @Override
             public void onError(Throwable t) {
-                System.out.println("Error increasing the number of gRPC server instances");
+                System.out.println("Error changing the number of Label App instances");
             }
 
             @Override
             public void onCompleted() {
-                System.out.println("Increased the number of gRPC server instances by " + count);
+                System.out.println("Changed the number of Label App instances to " + count + " successfully");
             }
         });
 
-        System.out.println("Increased the number of Label instances by " + count);
+        System.out.println("Instance number change scheduled, please wait...");
     }
 
     // helper method to read a string from the console
