@@ -151,11 +151,7 @@ public class Client {
 
     static void isAlive() {
         var startTime = System.currentTimeMillis();
-        var ping = functionalServiceBlockingStub.isAlive(
-                PingRequest
-                        .newBuilder()
-                        .setRequestTimeMillis(System.nanoTime())
-                        .build());
+        functionalServiceBlockingStub.isAlive(Empty.newBuilder().build());
         System.out.println("Ping is " + (System.currentTimeMillis() - startTime) + " ms");
     }
 
