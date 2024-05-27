@@ -8,7 +8,7 @@ package label;
 // Functional Service contract operations
 service FunctionalService {
   // ping server for testing service availability
-  rpc IsAlive(PingRequest) returns (PingResponse);
+  rpc IsAlive(google.protobuf.Empty) returns (google.protobuf.Empty);
 
   // uploads an Image by sending blocks of bytes to be labeled
   rpc SubmitImageForLabeling(stream ImageChunkRequest) returns (RequestId);
@@ -18,16 +18,7 @@ service FunctionalService {
 
   // obtains names of files between 2 dates and with a label
   rpc GetFileNamesWithLabel(FileNamesWithLabelRequest) returns (FileNamesWithLabelResponse);
-
-  // downloads an image given by the server
-  // rpc downloadImage(ImageStream) returns (google.protobuf.Empty);
 }
-
-message PingRequest {
-  float requestTimeMillis = 1;
-}
-
-message PingResponse {int32 ping = 1;}
 
 message ImageChunkRequest {
   bytes chunk_data = 1;

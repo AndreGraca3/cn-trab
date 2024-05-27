@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
@@ -112,10 +111,10 @@ public class Client {
                         GetFileNamesWithLabel();
                         break;
                     case 5:
-                        ChangeGRPCServerInstances();
+                        resizeGRPCServerInstances();
                         break;
                     case 6:
-                        ChangeLabelAppInstances();
+                        resizeLabelAppInstances();
                         break;
                     case 99:
                         System.exit(0);
@@ -140,8 +139,8 @@ public class Client {
             System.out.println(" 2 - Submit an image for labeling");
             System.out.println(" 3 - Get labels for an image");
             System.out.println(" 4 - Search images by labels and date");
-            System.out.println(" 5 - Change gRPC server instances");
-            System.out.println(" 6 - Change gRPC label instances");
+            System.out.println(" 5 - Resize gRPC server instances");
+            System.out.println(" 6 - Resize gRPC label instances");
             System.out.println("99 - Exit");
             System.out.println();
             System.out.println("Choose an Option?");
@@ -221,7 +220,7 @@ public class Client {
 
     // Management Service
 
-    static void ChangeGRPCServerInstances() {
+    static void resizeGRPCServerInstances() {
         var scanner = new Scanner(System.in);
         var count = read("Insert the number of instances to change to: ", scanner);
 
@@ -245,7 +244,7 @@ public class Client {
         System.out.println("Server instances number change scheduled, please wait...");
     }
 
-    static void ChangeLabelAppInstances() {
+    static void resizeLabelAppInstances() {
         var scanner = new Scanner(System.in);
         var count = read("Insert the number of instances to change to: ", scanner);
 

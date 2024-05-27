@@ -1,5 +1,6 @@
 package pt.isel.server.services;
 
+import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import label.*;
@@ -41,12 +42,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
     }
 
     @Override
-    public void isAlive(PingRequest request, StreamObserver<PingResponse> responseObserver) {
-        var startTime = (long) request.getRequestTimeMillis();
-        var currentTimeMillis = System.nanoTime();
-        var ping = (int) (currentTimeMillis - startTime)/1000000;
-
-        responseObserver.onNext(PingResponse.newBuilder().setPing(ping).build());
+    public void isAlive(Empty request, StreamObserver<Empty> responseObserver) {
         responseObserver.onCompleted();
     }
 
