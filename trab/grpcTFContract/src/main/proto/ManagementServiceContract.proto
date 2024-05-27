@@ -8,7 +8,7 @@ package management;
 // Management Service contract operations
 service ManagementService {
   // ping server for testing service availability
-  rpc IsAlive(RequestTimestamp) returns (PingResponse);
+  rpc IsAlive(google.protobuf.Empty) returns (google.protobuf.Empty);
 
   // increase the number of instances of the gRPC server
   rpc ChangeGRPCServerInstances(InstanceCount) returns (google.protobuf.Empty);
@@ -16,12 +16,6 @@ service ManagementService {
   // increase the number of instances of the image processing server
   rpc ChangeImageProcessingInstances(InstanceCount) returns (google.protobuf.Empty);
 }
-
-message RequestTimestamp {
-  string timestamp = 1;
-}
-
-message PingResponse {int32 ping = 1;}
 
 message InstanceCount {
   int32 count = 1;

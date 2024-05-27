@@ -7,24 +7,20 @@ import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import management.InstanceCount;
 import management.ManagementServiceGrpc;
-import management.PingResponse;
-import management.RequestTimestamp;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.io.IOException;
 
 public class ManagementService extends ManagementServiceGrpc.ManagementServiceImplBase {
 
-    public ManagementService(int svcPort) {
+    InstanceGroupManagersClient managersClient;
+
+    public ManagementService(int svcPort) throws IOException {
+        managersClient = InstanceGroupManagersClient.create();
         System.out.println("Management Service is available on port:" + svcPort);
     }
 
     @Override
-    public void isAlive(RequestTimestamp request, StreamObserver<PingResponse> responseObserver) {
-        LocalDateTime startTime = LocalDateTime.parse(request.getTimestamp());
-        var ping = (int) Duration.between(startTime, LocalDateTime.now()).toMillis();
-
-        responseObserver.onNext(PingResponse.newBuilder().setPing(ping).build());
+    public void isAlive(Empty request, StreamObserver<Empty> responseObserver) {
         responseObserver.onCompleted();
     }
 
@@ -35,17 +31,17 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
         String instanceGroupName = "instance-group-server";
         int count = request.getCount();
 
-
-        try{
-            InstanceGroupManagersClient managersClient = InstanceGroupManagersClient.create();
-
-            int newSize = Math.max(1, count);
+        try {
+            if (count < 1) {
+                responseObserver.onError(new IllegalArgumentException("Count must be a positive number"));
+                return;
+            }
 
             OperationFuture<Operation, Operation> result = managersClient.resizeAsync(
                     projectID,
                     zone,
                     instanceGroupName,
-                    newSize
+                    count
             );
             Operation oper = result.get();
             System.out.println("Resizing with status " + oper.getStatus());
@@ -58,7 +54,6 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
         }
     }
 
-
     @Override
     public void changeImageProcessingInstances(InstanceCount request, StreamObserver<Empty> responseObserver) {
         String projectID = "cn2324-t1-g15";
@@ -66,18 +61,17 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
         String instanceGroupName = "instance-group-label";
         int count = request.getCount();
 
-
-        try{
-            InstanceGroupManagersClient managersClient = InstanceGroupManagersClient.create();
-
-
-            int newSize = Math.max(1, count);
+        try {
+            if (count < 0) {
+                responseObserver.onError(new IllegalArgumentException("Count must be a positive number"));
+                return;
+            }
 
             OperationFuture<Operation, Operation> result = managersClient.resizeAsync(
                     projectID,
                     zone,
                     instanceGroupName,
-                    newSize
+                    count
             );
             Operation oper = result.get();
             System.out.println("Resizing with status " + oper.getStatus());
@@ -89,5 +83,4 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
             e.printStackTrace();
         }
     }
-
 }
