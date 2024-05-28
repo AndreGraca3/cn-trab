@@ -21,6 +21,7 @@ public class ManagementService extends ManagementServiceGrpc.ManagementServiceIm
 
     @Override
     public void isAlive(Empty request, StreamObserver<Empty> responseObserver) {
+        responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
     }
 

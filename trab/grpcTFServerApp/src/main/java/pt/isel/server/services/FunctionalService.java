@@ -43,6 +43,7 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
 
     @Override
     public void isAlive(Empty request, StreamObserver<Empty> responseObserver) {
+        responseObserver.onNext(Empty.newBuilder().build());
         responseObserver.onCompleted();
     }
 
@@ -51,8 +52,8 @@ public class FunctionalService extends FunctionalServiceGrpc.FunctionalServiceIm
         ArrayList<Byte> data = new ArrayList<>();
 
         return new StreamObserver<>() {
-        String blobName;
-        String contentType;
+            String blobName;
+            String contentType;
 
             @Override
             public void onNext(ImageChunkRequest chunkInfo) {
