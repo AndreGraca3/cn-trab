@@ -45,7 +45,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>grpcTFClientApp.Client</mainClass>
+                            <mainClass>pt.isel.Client</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
